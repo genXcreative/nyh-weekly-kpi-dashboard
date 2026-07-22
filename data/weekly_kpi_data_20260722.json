@@ -1,6 +1,6 @@
 {
   "store": "New York Hardware, Inc",
-  "generated_at": "2026-07-22 19:58",
+  "generated_at": "2026-07-22 20:05",
   "last7_range": "Jul 15 \u2013 Jul 21, 2026",
   "periods": {
     "last7": {
@@ -20,9 +20,9 @@
     "mtd": {
       "gross_sales": 556338.23,
       "net_sales": 492651.44,
-      "spend": 94247.846784,
-      "roas": 5.902927748312727,
-      "roi": 5.227190400742769
+      "spend": 94280.756695,
+      "roas": 5.900867255443913,
+      "roi": 5.2253657826881525
     },
     "mtd_yoy": {
       "gross_sales": 374806.73,
@@ -35,8 +35,8 @@
   "yoy_deltas": {
     "last7_roas_pct": -10.776859710518863,
     "last7_roi_pct": -12.95683065268084,
-    "mtd_roas_pct": 3.6552900588096247,
-    "mtd_roi_pct": 2.91882798080174
+    "mtd_roas_pct": 3.619107846340208,
+    "mtd_roi_pct": 2.882902839894868
   },
   "plan": {
     "month": "Jul-26",
@@ -49,9 +49,9 @@
     "gross_sales_prorated_target": 461542.5135483871,
     "gross_sales_projected": 783931.1422727273,
     "spend_budget": 113369.95,
-    "spend_actual_mtd": 94247.846784,
+    "spend_actual_mtd": 94280.756695,
     "spend_prorated_budget": 80456.0935483871,
-    "spend_projected": 132803.78410472724
+    "spend_projected": 132850.15716113636
   },
   "monthly_history": [
     {
@@ -155,8 +155,8 @@
       "gross_sales_projected": 783931.1422727273,
       "gross_sales_delta": 133575.78,
       "spend_budget": 113369.95,
-      "spend_actual": 94247.846784,
-      "spend_projected": 132803.78410472724,
+      "spend_actual": 94280.756695,
+      "spend_projected": 132850.15716113636,
       "is_current": true
     },
     {
@@ -241,8 +241,8 @@
     "gross_sales_target": 7506877.76,
     "gross_sales_actual": 4265567.76,
     "spend_budget": 1308598.94,
-    "spend_actual": 660170.76,
-    "roas": 6.461309737498825,
+    "spend_actual": 660203.67,
+    "roas": 6.460987652492146,
     "income_delta": -2711126.31,
     "gross_sales_delta": -3241310.0,
     "income_status": "ontrack",
@@ -258,7 +258,7 @@
     "gross_sales_actual": 4265567.76,
     "gross_sales_delta": 320400.09,
     "spend_budget": 687721.63,
-    "spend_actual": 660170.76,
+    "spend_actual": 660203.67,
     "spend_status": "hit",
     "roas": 6.461
   },
@@ -355,7 +355,7 @@
       348733.51,
       463673.78,
       565922.92,
-      660170.76,
+      660203.67,
       null,
       null,
       null,
@@ -369,12 +369,12 @@
       null,
       null,
       null,
-      698726.7,
-      811969.3,
-      905319.35,
-      1012972.1,
-      1150257.25,
-      1268814.86
+      698773.08,
+      812023.19,
+      905379.43,
+      1013039.33,
+      1150333.59,
+      1268899.07
     ],
     "cum_actual_spend_ly": [
       37398.71,
@@ -398,7 +398,7 @@
     "annual_spend_ly_total": 870802.66,
     "projected_annual_income": 7329537.98,
     "projected_annual_gross_sales": 8159111.48,
-    "projected_annual_spend": 1268814.86,
+    "projected_annual_spend": 1268899.07,
     "income_attainment_pct": 112.0,
     "gross_attainment_pct": 108.7,
     "spend_attainment_pct": 97.0,
