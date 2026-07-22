@@ -1,0 +1,54 @@
+name: Weekly KPI Report
+
+on:
+  schedule:
+    # 14:00 UTC every Monday = 6am Pacific Daylight Time / 7am Pacific Standard Time.
+    # Always still "Monday morning" in Pacific either way cron itself is UTC-only and
+    # does not adjust for daylight saving, but the script computes its own "today"
+    # in Pacific time regardless of what UTC hour it actually runs at, so this only
+    # needs to land comfortably within Monday Pacific - it does not need to be exact.
+    - cron: '0 14 * * 1'
+  workflow_dispatch: {}   # adds a manual "Run workflow" button on the Actions tab, for testing
+
+permissions:
+  contents: write   # needed so the job can commit index.html back to this repo
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run weekly KPI report
+        env:
+          SHOPIFY_STORE_DOMAIN: ${{ secrets.SHOPIFY_STORE_DOMAIN }}
+          SHOPIFY_CLIENT_ID: ${{ secrets.SHOPIFY_CLIENT_ID }}
+          SHOPIFY_CLIENT_SECRET: ${{ secrets.SHOPIFY_CLIENT_SECRET }}
+          GOOGLE_ADS_DEVELOPER_TOKEN: ${{ secrets.GOOGLE_ADS_DEVELOPER_TOKEN }}
+          GOOGLE_ADS_CLIENT_ID: ${{ secrets.GOOGLE_ADS_CLIENT_ID }}
+          GOOGLE_ADS_CLIENT_SECRET: ${{ secrets.GOOGLE_ADS_CLIENT_SECRET }}
+          GOOGLE_ADS_REFRESH_TOKEN: ${{ secrets.GOOGLE_ADS_REFRESH_TOKEN }}
+          GOOGLE_ADS_LOGIN_CUSTOMER_ID: ${{ secrets.GOOGLE_ADS_LOGIN_CUSTOMER_ID }}
+          GOOGLE_ADS_CUSTOMER_ID: ${{ secrets.GOOGLE_ADS_CUSTOMER_ID }}
+        run: python weekly_kpi_report.py
+
+      - name: Commit and push updated report
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html data/
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Weekly KPI dashboard update - $(date -u +'%Y-%m-%d')"
+            git push
+          fi
