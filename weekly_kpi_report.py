@@ -499,7 +499,7 @@ def build_recommendation(income_att, spend_att):
     if income_att >= 1 and spend_att <= 1:
         return (f"Trending {income_gap:+.1f}% vs. the annual income target while pacing "
                 f"{-spend_gap:.1f}% under the ad spend budget — efficient. No spend change needed; "
-                f"the unused budget headroom could be reinvested for further growth if desired.")
+                f"the unused budget headroom allows opportunities for discussion.")
     if income_att >= 1 and spend_att > 1:
         return (f"Trending {income_gap:+.1f}% vs. the annual income target, but spend is pacing "
                 f"{spend_gap:.1f}% over budget. On track to hit target, just at a higher cost than "
