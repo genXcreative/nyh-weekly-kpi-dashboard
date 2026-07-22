@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>New York Hardware — Weekly Ecommerce KPI Report</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; margin: 0; background: #f4f6f8; color: #1f2937; }
+  header { background: #1f2937; color: #fff; padding: 24px 32px; }
+  header h1 { margin: 0; font-size: 22px; }
+  header p { margin: 6px 0 0; color: #9ca3af; font-size: 13px; }
+  main { max-width: 1200px; margin: 0 auto; padding: 24px 32px 60px; }
+  section { margin-bottom: 32px; }
+  section h2 { font-size: 15px; text-transform: uppercase; letter-spacing: .04em; color: #4b5563; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px; margin-bottom: 16px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+  .card { background: #fff; border-radius: 10px; padding: 16px 18px; box-shadow: 0 1px 3px rgba(0,0,0,.08); border-left: 4px solid #1f2937; }
+  .card.good { border-left-color: #10b981; }
+  .card.warn { border-left-color: #f59e0b; }
+  .card.bad { border-left-color: #ef4444; }
+  .card .label { font-size: 11px; text-transform: uppercase; color: #6b7280; letter-spacing: .03em; }
+  .card .value { font-size: 26px; font-weight: 700; margin: 4px 0 2px; }
+  .card .sub { font-size: 12px; color: #6b7280; }
+  .card .delta { font-size: 12px; font-weight: 600; }
+  .delta.up { color: #10b981; }
+  .delta.down { color: #ef4444; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .delta-up { color: #10b981; font-weight: 600; }
+  .delta-down { color: #ef4444; font-weight: 600; }
+  .chart-box { background: #fff; border-radius: 10px 10px 0 0; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.08); position: relative; height: 280px; }
+  .data-table-wrap { margin-top: -1px; }
+  table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 0 0 10px 10px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  table.standalone { border-radius: 10px; }
+  th, td { padding: 8px 12px; text-align: right; font-size: 12.5px; border-bottom: 1px solid #f0f0f0; }
+  th:first-child, td:first-child { text-align: left; }
+  th { background: #f9fafb; color: #4b5563; font-weight: 600; text-transform: uppercase; font-size: 10.5px; }
+  tr.current { background: #eff6ff; }
+  tr:last-child td { border-bottom: none; }
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+  .pill.hit { background: #d1fae5; color: #065f46; }
+  .pill.miss { background: #fee2e2; color: #991b1b; }
+  .pill.ontrack { background: #dbeafe; color: #1e40af; }
+  .pill.atrisk { background: #fef3c7; color: #92400e; }
+  .pill.na { background: #f3f4f6; color: #6b7280; }
+  tfoot td { font-weight: 700; background: #f9fafb; border-top: 2px solid #d1d5db; }
+  tfoot tr:last-child td { border-bottom: none; }
+  tfoot tr.ytd-row td { background: #eff6ff; border-top: 2px solid #bfdbfe; border-bottom: 1px solid #d1d5db; }
+  .recommendation { background: #fff; border-radius: 10px; padding: 14px 18px; box-shadow: 0 1px 3px rgba(0,0,0,.08); font-size: 13.5px; line-height: 1.5; border-left: 4px solid #4f46e5; margin: 14px 0 0; }
+  .chart-note { font-size: 11px; color: #9ca3af; text-align: center; margin: 6px 0 0; }
+  .chart-title { font-size: 13px; font-weight: 600; color: #374151; margin: 0 0 8px; text-align: center; }
+  footer { text-align: center; color: #9ca3af; font-size: 11px; padding: 20px; }
+</style>
+</head>
+<body>
+<header>
+  <h1 id="storeName">New York Hardware — Weekly Ecommerce KPI Report</h1>
+  <p id="genMeta"></p>
+</header>
+<main>
+
+  <section>
+    <h2>True ROAS &amp; ROI</h2>
+    <div class="cards" id="kpiCards"></div>
+  </section>
+
+  <section>
+    <h2>Prior 7 Days vs. Same Week Last Year</h2>
+    <div class="grid2">
+      <div>
+        <div class="chart-box"><canvas id="chart7d"></canvas></div>
+        <div class="data-table-wrap"><table id="table7d"><thead></thead><tbody></tbody></table></div>
+      </div>
+      <div>
+        <div class="chart-box"><canvas id="chart7dRatio"></canvas></div>
+        <div class="data-table-wrap"><table id="table7dRatio"><thead></thead><tbody></tbody></table></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Month to Date vs. Same Period Last Year</h2>
+    <div class="grid2">
+      <div>
+        <div class="chart-box"><canvas id="chartMtd"></canvas></div>
+        <div class="data-table-wrap"><table id="tableMtd"><thead></thead><tbody></tbody></table></div>
+      </div>
+      <div>
+        <div class="chart-box"><canvas id="chartMtdRatio"></canvas></div>
+        <div class="data-table-wrap"><table id="tableMtdRatio"><thead></thead><tbody></tbody></table></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Financial Plan — Month to Date Attainment (Net vs. Gross)</h2>
+    <p class="chart-note" style="margin-bottom: 12px;">Net Income is the CFO/CEO view (after discounts &amp; returns). Gross Sales is the CDO/marketing view — the number True ROAS is measured against.</p>
+    <div class="grid3">
+      <div>
+        <div class="chart-box"><canvas id="chartNetIncomePlan"></canvas></div>
+        <div class="data-table-wrap"><table id="tableNetIncomePlan"><thead></thead><tbody></tbody></table></div>
+      </div>
+      <div>
+        <div class="chart-box"><canvas id="chartGrossSalesPlan"></canvas></div>
+        <div class="data-table-wrap"><table id="tableGrossSalesPlan"><thead></thead><tbody></tbody></table></div>
+      </div>
+      <div>
+        <div class="chart-box"><canvas id="chartSpendPlan"></canvas></div>
+        <div class="data-table-wrap"><table id="tableSpendPlan"><thead></thead><tbody></tbody></table></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Monthly Hits &amp; Misses — Full Year</h2>
+    <table id="monthlyTable" class="standalone">
+      <thead>
+        <tr>
+          <th>Month</th>
+          <th>Net Income Target</th>
+          <th>Net Income Actual</th>
+          <th>Δ (Net)</th>
+          <th>Net Result</th>
+          <th>Gross Sales Target</th>
+          <th>Gross Sales Actual</th>
+          <th>Δ (Gross)</th>
+          <th>Google Spend Budget</th>
+          <th>Google Spend Actual</th>
+          <th>Spend Result</th>
+          <th>True ROAS</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+      <tfoot></tfoot>
+    </table>
+  </section>
+
+  <section>
+    <h2>Full-Year Trend &amp; Projection</h2>
+    <div class="cards" id="trendSummaryCards"></div>
+    <p id="recommendation" class="recommendation"></p>
+    <div class="grid2" style="margin-top: 16px;">
+      <div>
+        <h3 class="chart-title">Net Income — Cumulative Actual vs. Target</h3>
+        <div class="chart-box" style="height: 320px;"><canvas id="chartTrendIncome"></canvas></div>
+        <p class="chart-note">Indigo solid = actual through the current month · Indigo dashed = projected pace to year-end · Gray dashed = plan target · Teal solid = last year's pace</p>
+      </div>
+      <div>
+        <h3 class="chart-title">Ad Spend — Cumulative Actual vs. Budget</h3>
+        <div class="chart-box" style="height: 320px;"><canvas id="chartTrendSpend"></canvas></div>
+        <p class="chart-note">Indigo solid = actual through the current month · Indigo dashed = projected pace to year-end · Gray dashed = plan budget · Teal solid = last year's pace</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Scaling Opportunities</h2>
+    <p class="chart-note" id="scalingBasis" style="margin-bottom: 12px;"></p>
+    <div class="chart-box" style="height: 340px;"><canvas id="chartScaling"></canvas></div>
+    <div class="data-table-wrap">
+      <table id="tableScaling"><thead></thead><tbody></tbody></table>
+    </div>
+    <p class="chart-note">Assumes True ROAS and ROI hold constant as spend scales. Real campaigns often see diminishing returns at higher spend — treat this as a directional estimate, not a guarantee.</p>
+  </section>
+
+</main>
+<footer>Generated automatically by the NYH weekly KPI notebook · Google Ads + Shopify data · True ROAS = Gross Sales ÷ Ad Spend · ROI = Net Sales ÷ Ad Spend</footer>
+
+<script>
+const REPORT_DATA = {"store": "New York Hardware, Inc", "generated_at": "2026-07-22 00:07", "periods": {"last7": {"gross_sales": 172509.47, "net_sales": 150612.37, "spend": 32505.506515, "roas": 5.307084506447969, "roi": 4.633441719497537}, "last7_yoy": {"gross_sales": 128357.72, "net_sales": 114997.82, "spend": 21424.082637, "roas": 5.991281968746824, "roi": 5.367689340471246}, "mtd": {"gross_sales": 529373.07, "net_sales": 467504.05, "spend": 91497.219674, "roas": 5.7856738367147065, "roi": 5.109489137109231}, "mtd_yoy": {"gross_sales": 374806.73, "net_sales": 334275.75, "spend": 65815.984831, "roas": 5.694767478788257, "roi": 5.078944740526814}}, "yoy_deltas": {"last7_roas_pct": -11.419884189526245, "last7_roi_pct": -13.679026009155137, "mtd_roas_pct": 1.5963137786583161, "mtd_roi_pct": 0.601392575483079}, "plan": {"month": "Jul-26", "net_income_target": 566849.73, "net_income_actual_mtd": 470740.73, "net_income_prorated_target": 402280.45354838704, "net_income_projected": 663316.4831818182, "gross_sales_target": 650355.36, "gross_sales_actual_mtd": 529373.07, "gross_sales_prorated_target": 461542.5135483871, "gross_sales_projected": 745934.7804545454, "spend_budget": 113369.95, "spend_actual_mtd": 91497.219674, "spend_prorated_budget": 80456.0935483871, "spend_projected": 128927.90044972727}, "monthly_history": [{"month": "Jan-26", "income_target": 447999.25, "income_actual": 517492.44999999995, "income_projected": null, "income_delta": 69493.2, "gross_sales_target": 513996.39, "gross_sales_actual": 574498.89, "gross_sales_projected": null, "gross_sales_delta": 60502.5, "spend_budget": 89599.85, "spend_actual": 88763.981675, "spend_projected": null, "is_current": false}, {"month": "Feb-26", "income_target": 436037.5, "income_actual": 477983.83, "income_projected": null, "income_delta": 41946.33, "gross_sales_target": 500272.49, "gross_sales_actual": 528793.03, "gross_sales_projected": null, "gross_sales_delta": 28520.54, "spend_budget": 87207.5, "spend_actual": 80815.484349, "spend_projected": null, "is_current": false}, {"month": "Mar-26", "income_target": 452386.18, "income_actual": 556049.1799999999, "income_projected": null, "income_delta": 103663.0, "gross_sales_target": 519029.58, "gross_sales_actual": 617789.15, "gross_sales_projected": null, "gross_sales_delta": 98759.57, "spend_budget": 90477.24, "spend_actual": 84895.71183, "spend_projected": null, "is_current": false}, {"month": "Apr-26", "income_target": 527081.1, "income_actual": 550373.9099999999, "income_projected": null, "income_delta": 23292.81, "gross_sales_target": 604728.2, "gross_sales_actual": 620168.53, "gross_sales_projected": null, "gross_sales_delta": 15440.33, "spend_budget": 105416.22, "spend_actual": 94258.327437, "spend_projected": null, "is_current": false}, {"month": "May-26", "income_target": 580020.13, "income_actual": 680941.82, "income_projected": null, "income_delta": 100921.69, "gross_sales_target": 665465.96, "gross_sales_actual": 749747.17, "gross_sales_projected": null, "gross_sales_delta": 84281.21, "spend_budget": 116004.03, "spend_actual": 114940.269987, "spend_projected": null, "is_current": false}, {"month": "Jun-26", "income_target": 592803.52, "income_actual": 552927.0, "income_projected": null, "income_delta": -39876.52, "gross_sales_target": 680132.54, "gross_sales_actual": 618232.76, "gross_sales_projected": null, "gross_sales_delta": -61899.78, "spend_budget": 118560.7, "spend_actual": 102249.14285, "spend_projected": null, "is_current": false}, {"month": "Jul-26", "income_target": 566849.73, "income_actual": 470740.73, "income_projected": 663316.4831818182, "income_delta": 96466.75, "gross_sales_target": 650355.36, "gross_sales_actual": 529373.07, "gross_sales_projected": 745934.7804545454, "gross_sales_delta": 95579.42, "spend_budget": 113369.95, "spend_actual": 91497.219674, "spend_projected": 128927.90044972727, "is_current": true}, {"month": "Aug-26", "income_target": 583966.76, "income_actual": null, "income_projected": null, "income_delta": null, "gross_sales_target": 669993.99, "gross_sales_actual": null, "gross_sales_projected": null, "gross_sales_delta": null, "spend_budget": 116793.35, "spend_actual": null, "spend_projected": null, "is_current": false}, {"month": "Sep-26", "income_target": 481385.37, "income_actual": null, "income_projected": null, "income_delta": null, "gross_sales_target": 552300.79, "gross_sales_actual": null, "gross_sales_projected": null, "gross_sales_delta": null, "spend_budget": 96277.07, "spend_actual": null, "spend_projected": null, "is_current": false}, {"month": "Oct-26", "income_target": 555141.18, "income_actual": null, "income_projected": null, "income_delta": null, "gross_sales_target": 636921.96, "gross_sales_actual": null, "gross_sales_projected": null, "gross_sales_delta": null, "spend_budget": 111028.24, "spend_actual": null, "spend_projected": null, "is_current": false}, {"month": "Nov-26", "income_target": 707948.83, "income_actual": null, "income_projected": null, "income_delta": null, "gross_sales_target": 812240.51, "gross_sales_actual": null, "gross_sales_projected": null, "gross_sales_delta": null, "spend_budget": 141589.77, "spend_actual": null, "spend_projected": null, "is_current": false}, {"month": "Dec-26", "income_target": 611375.09, "income_actual": null, "income_projected": null, "income_delta": null, "gross_sales_target": 701439.99, "gross_sales_actual": null, "gross_sales_projected": null, "gross_sales_delta": null, "spend_budget": 122275.02, "spend_actual": null, "spend_projected": null, "is_current": false}], "totals": {"income_target": 6542994.64, "income_actual": 3806508.92, "gross_sales_target": 7506877.76, "gross_sales_actual": 4238602.6, "spend_budget": 1308598.94, "spend_actual": 657420.14, "roas": 6.4473269711512025, "income_delta": -2736485.72, "gross_sales_delta": -3268275.16, "income_status": "ontrack", "spend_status": "ontrack"}, "ytd": {"label": "YTD (Jan 1 \u2013 Jul 22)", "income_target": 3438608.13, "income_actual": 3806508.92, "income_delta": 367900.79, "income_status": "hit", "gross_sales_target": 3945167.67, "gross_sales_actual": 4238602.6, "gross_sales_delta": 293434.93, "spend_budget": 687721.63, "spend_actual": 657420.14, "spend_status": "hit", "roas": 6.447}, "trend": {"months": ["Jan-26", "Feb-26", "Mar-26", "Apr-26", "May-26", "Jun-26", "Jul-26", "Aug-26", "Sep-26", "Oct-26", "Nov-26", "Dec-26"], "current_idx": 6, "cum_target_income": [447999.25, 884036.75, 1336422.93, 1863504.03, 2443524.16, 3036327.68, 3603177.41, 4187144.17, 4668529.54, 5223670.72, 5931619.55, 6542994.64], "cum_actual_income": [517492.45, 995476.28, 1551525.46, 2101899.37, 2782841.19, 3335768.19, 3806508.92, null, null, null, null, null], "cum_projected_income": [null, null, null, null, null, null, 4005660.53, 4654101.36, 5188635.1, 5805067.81, 6591179.22, 7270054.46], "cum_actual_income_ly": [159926.2, 307595.5, 470369.42, 696498.5, 969716.46, 1455112.27, 1921630.74, 2412697.54, 2805965.86, 3262107.43, 3857634.04, 4379406.32], "cum_target_spend": [89599.85, 176807.35, 267284.59, 372700.81, 488704.84, 607265.54, 720635.49, 837428.84, 933705.91, 1044734.15, 1186323.92, 1308598.94], "cum_actual_spend": [88763.98, 169579.47, 254475.18, 348733.51, 463673.78, 565922.92, 657420.14, null, null, null, null, null], "cum_projected_spend": [null, null, null, null, null, null, 694850.82, 807465.25, 900297.48, 1007353.08, 1143876.7, 1261776.66], "cum_actual_spend_ly": [37398.71, 68558.54, 107411.92, 145740.81, 198462.17, 282303.17, 372299.83, 459115.99, 542520.31, 632478.02, 757662.83, 870802.66], "annual_income_target": 6542994.64, "annual_gross_sales_target": 7506877.76, "annual_spend_budget": 1308598.94, "annual_income_ly_total": 4379406.32, "annual_spend_ly_total": 870802.66, "projected_annual_income": 7265387.72, "projected_annual_gross_sales": 8090114.05, "projected_annual_spend": 1261776.66, "income_attainment_pct": 111.0, "gross_attainment_pct": 107.8, "spend_attainment_pct": 96.4, "recommendation": "Trending +11.0% vs. the annual income target while pacing 3.6% under the ad spend budget \u2014 efficient. No spend change needed; the unused budget headroom could be reinvested for further growth if desired."}, "scaling": {"basis": "Trailing 7-day average (excludes today)", "current_daily_gross": 24644.21, "current_daily_net": 21516.05, "current_daily_spend": 4643.64, "current_roas": 5.307, "current_roi": 4.633, "targets": [{"label": "$30K/day", "daily_revenue_target": 30000, "required_daily_spend": 5652.82, "delta_spend_vs_current": 1009.18, "implied_net_sales": 26192.02, "monthly_spend_equivalent": 169584.64}, {"label": "$33K/day", "daily_revenue_target": 33000, "required_daily_spend": 6218.1, "delta_spend_vs_current": 1574.46, "implied_net_sales": 28811.22, "monthly_spend_equivalent": 186543.1}, {"label": "$35K/day", "daily_revenue_target": 35000, "required_daily_spend": 6594.96, "delta_spend_vs_current": 1951.31, "implied_net_sales": 30557.35, "monthly_spend_equivalent": 197848.74}, {"label": "$40K/day", "daily_revenue_target": 40000, "required_daily_spend": 7537.09, "delta_spend_vs_current": 2893.45, "implied_net_sales": 34922.69, "monthly_spend_equivalent": 226112.85}, {"label": "$45K/day", "daily_revenue_target": 45000, "required_daily_spend": 8479.23, "delta_spend_vs_current": 3835.59, "implied_net_sales": 39288.03, "monthly_spend_equivalent": 254376.96}, {"label": "$50K/day", "daily_revenue_target": 50000, "required_daily_spend": 9421.37, "delta_spend_vs_current": 4777.72, "implied_net_sales": 43653.36, "monthly_spend_equivalent": 282641.06}]}};
+
+const fmtMoney = n => n == null ? '—' : (n < 0 ? '-$' + Math.round(-n).toLocaleString() : '$' + Math.round(n).toLocaleString());
+const fmtX = n => n == null ? '—' : n.toFixed(2) + 'x';
+const fmtPct = n => n == null ? '—' : (n >= 0 ? '+' : '') + n.toFixed(1) + '%';
+
+document.getElementById('genMeta').textContent =
+  `${REPORT_DATA.store} · Generated ${REPORT_DATA.generated_at} · Currency USD`;
+
+function cardHTML(label, value, sub, delta, tone) {
+  const deltaHtml = delta == null ? '' : `<div class="delta ${delta >= 0 ? 'up' : 'down'}">${fmtPct(delta)} YoY</div>`;
+  return `<div class="card ${tone||''}">
+    <div class="label">${label}</div>
+    <div class="value">${value}</div>
+    <div class="sub">${sub}</div>
+    ${deltaHtml}
+  </div>`;
+}
+
+function toneForRoas(x) { return x >= 4 ? 'good' : x >= 2.5 ? 'warn' : 'bad'; }
+
+const p = REPORT_DATA.periods;
+const d = REPORT_DATA.yoy_deltas;
+document.getElementById('kpiCards').innerHTML = [
+  cardHTML('True ROAS — Last 7 Days', fmtX(p.last7.roas), fmtMoney(p.last7.gross_sales) + ' gross / ' + fmtMoney(p.last7.spend) + ' spend', d.last7_roas_pct, toneForRoas(p.last7.roas)),
+  cardHTML('ROI — Last 7 Days', fmtX(p.last7.roi), fmtMoney(p.last7.net_sales) + ' net / ' + fmtMoney(p.last7.spend) + ' spend', d.last7_roi_pct, toneForRoas(p.last7.roi)),
+  cardHTML('True ROAS — MTD', fmtX(p.mtd.roas), fmtMoney(p.mtd.gross_sales) + ' gross / ' + fmtMoney(p.mtd.spend) + ' spend', d.mtd_roas_pct, toneForRoas(p.mtd.roas)),
+  cardHTML('ROI — MTD', fmtX(p.mtd.roi), fmtMoney(p.mtd.net_sales) + ' net / ' + fmtMoney(p.mtd.spend) + ' spend', d.mtd_roi_pct, toneForRoas(p.mtd.roi)),
+].join('');
+
+// Distinct, colorblind-friendlier palette so Gross Sales and Net Sales never
+// blend together visually even when their dollar values are close.
+const COLOR_GROSS  = '#4f46e5'; // indigo
+const COLOR_NET    = '#0d9488'; // teal
+const COLOR_SPEND  = '#ef4444'; // red
+const COLOR_LY     = '#9ca3af'; // gray (last-year / secondary series)
+const COLOR_TARGET = '#9ca3af';
+const COLOR_FULL   = '#e5e7eb';
+
+function barChart(ctx, labels, datasets, opts) {
+  return new Chart(ctx, { type: 'bar', data: { labels, datasets }, options: Object.assign({
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'bottom' } },
+    scales: { y: { beginAtZero: true } }
+  }, opts || {}) });
+}
+
+// Computes a YoY % change directly from two raw values (used for the money
+// tables, where we have this-year/last-year numbers but no precomputed delta).
+function pctDelta(thisYear, lastYear) {
+  if (thisYear == null || lastYear == null || !lastYear) return null;
+  return (thisYear - lastYear) / lastYear * 100;
+}
+
+// Renders a compact data table under a chart so exact figures are always visible,
+// not just relative bar heights.
+function dataTable(tableId, columns, rows, firstColLabel) {
+  const table = document.getElementById(tableId);
+  table.querySelector('thead').innerHTML =
+    `<tr><th>${firstColLabel || 'Metric'}</th>${columns.map(c => `<th>${c}</th>`).join('')}</tr>`;
+  table.querySelector('tbody').innerHTML = rows.map(r =>
+    `<tr><td>${r.label}</td>${r.values.map(v => `<td>${v}</td>`).join('')}</tr>`
+  ).join('');
+}
+
+barChart(document.getElementById('chart7d'), ['This Year', 'Last Year'], [
+  { label: 'Gross Sales', backgroundColor: COLOR_GROSS, data: [p.last7.gross_sales, p.last7_yoy.gross_sales] },
+  { label: 'Net Sales', backgroundColor: COLOR_NET, data: [p.last7.net_sales, p.last7_yoy.net_sales] },
+  { label: 'Ad Spend', backgroundColor: COLOR_SPEND, data: [p.last7.spend, p.last7_yoy.spend] },
+]);
+dataTable('table7d', ['This Year', 'Last Year', 'YoY Δ'], [
+  { label: 'Gross Sales', values: [fmtMoney(p.last7.gross_sales), fmtMoney(p.last7_yoy.gross_sales), fmtPct(pctDelta(p.last7.gross_sales, p.last7_yoy.gross_sales))] },
+  { label: 'Net Sales', values: [fmtMoney(p.last7.net_sales), fmtMoney(p.last7_yoy.net_sales), fmtPct(pctDelta(p.last7.net_sales, p.last7_yoy.net_sales))] },
+  { label: 'Ad Spend', values: [fmtMoney(p.last7.spend), fmtMoney(p.last7_yoy.spend), fmtPct(pctDelta(p.last7.spend, p.last7_yoy.spend))] },
+]);
+
+barChart(document.getElementById('chart7dRatio'), ['True ROAS', 'ROI'], [
+  { label: 'This Year', backgroundColor: COLOR_GROSS, data: [p.last7.roas, p.last7.roi] },
+  { label: 'Last Year', backgroundColor: COLOR_LY, data: [p.last7_yoy.roas, p.last7_yoy.roi] },
+]);
+dataTable('table7dRatio', ['This Year', 'Last Year', 'YoY Δ'], [
+  { label: 'True ROAS', values: [fmtX(p.last7.roas), fmtX(p.last7_yoy.roas), fmtPct(d.last7_roas_pct)] },
+  { label: 'ROI', values: [fmtX(p.last7.roi), fmtX(p.last7_yoy.roi), fmtPct(d.last7_roi_pct)] },
+]);
+
+barChart(document.getElementById('chartMtd'), ['This Year', 'Last Year'], [
+  { label: 'Gross Sales', backgroundColor: COLOR_GROSS, data: [p.mtd.gross_sales, p.mtd_yoy.gross_sales] },
+  { label: 'Net Sales', backgroundColor: COLOR_NET, data: [p.mtd.net_sales, p.mtd_yoy.net_sales] },
+  { label: 'Ad Spend', backgroundColor: COLOR_SPEND, data: [p.mtd.spend, p.mtd_yoy.spend] },
+]);
+dataTable('tableMtd', ['This Year', 'Last Year', 'YoY Δ'], [
+  { label: 'Gross Sales', values: [fmtMoney(p.mtd.gross_sales), fmtMoney(p.mtd_yoy.gross_sales), fmtPct(pctDelta(p.mtd.gross_sales, p.mtd_yoy.gross_sales))] },
+  { label: 'Net Sales', values: [fmtMoney(p.mtd.net_sales), fmtMoney(p.mtd_yoy.net_sales), fmtPct(pctDelta(p.mtd.net_sales, p.mtd_yoy.net_sales))] },
+  { label: 'Ad Spend', values: [fmtMoney(p.mtd.spend), fmtMoney(p.mtd_yoy.spend), fmtPct(pctDelta(p.mtd.spend, p.mtd_yoy.spend))] },
+]);
+
+barChart(document.getElementById('chartMtdRatio'), ['True ROAS', 'ROI'], [
+  { label: 'This Year', backgroundColor: COLOR_GROSS, data: [p.mtd.roas, p.mtd.roi] },
+  { label: 'Last Year', backgroundColor: COLOR_LY, data: [p.mtd_yoy.roas, p.mtd_yoy.roi] },
+]);
+dataTable('tableMtdRatio', ['This Year', 'Last Year', 'YoY Δ'], [
+  { label: 'True ROAS', values: [fmtX(p.mtd.roas), fmtX(p.mtd_yoy.roas), fmtPct(d.mtd_roas_pct)] },
+  { label: 'ROI', values: [fmtX(p.mtd.roi), fmtX(p.mtd_yoy.roi), fmtPct(d.mtd_roi_pct)] },
+]);
+
+const plan = REPORT_DATA.plan;
+barChart(document.getElementById('chartNetIncomePlan'), [plan.month], [
+  { label: 'Prorated Target', backgroundColor: COLOR_TARGET, data: [plan.net_income_prorated_target] },
+  { label: 'Actual MTD', backgroundColor: plan.net_income_actual_mtd >= plan.net_income_prorated_target ? '#10b981' : '#ef4444', data: [plan.net_income_actual_mtd] },
+  { label: 'Full Month Target', backgroundColor: COLOR_FULL, data: [plan.net_income_target] },
+]);
+dataTable('tableNetIncomePlan', [plan.month], [
+  { label: 'Prorated Target', values: [fmtMoney(plan.net_income_prorated_target)] },
+  { label: 'Actual MTD', values: [fmtMoney(plan.net_income_actual_mtd)] },
+  { label: 'Full Month Target', values: [fmtMoney(plan.net_income_target)] },
+]);
+
+barChart(document.getElementById('chartGrossSalesPlan'), [plan.month], [
+  { label: 'Prorated Target', backgroundColor: COLOR_TARGET, data: [plan.gross_sales_prorated_target] },
+  { label: 'Actual MTD', backgroundColor: plan.gross_sales_actual_mtd >= plan.gross_sales_prorated_target ? '#10b981' : '#ef4444', data: [plan.gross_sales_actual_mtd] },
+  { label: 'Full Month Target', backgroundColor: COLOR_FULL, data: [plan.gross_sales_target] },
+]);
+dataTable('tableGrossSalesPlan', [plan.month], [
+  { label: 'Prorated Target', values: [fmtMoney(plan.gross_sales_prorated_target)] },
+  { label: 'Actual MTD', values: [fmtMoney(plan.gross_sales_actual_mtd)] },
+  { label: 'Full Month Target', values: [fmtMoney(plan.gross_sales_target)] },
+]);
+
+barChart(document.getElementById('chartSpendPlan'), [plan.month], [
+  { label: 'Prorated Budget', backgroundColor: COLOR_TARGET, data: [plan.spend_prorated_budget] },
+  { label: 'Actual MTD', backgroundColor: plan.spend_actual_mtd <= plan.spend_prorated_budget ? '#10b981' : '#ef4444', data: [plan.spend_actual_mtd] },
+  { label: 'Full Month Budget', backgroundColor: COLOR_FULL, data: [plan.spend_budget] },
+]);
+dataTable('tableSpendPlan', [plan.month], [
+  { label: 'Prorated Budget', values: [fmtMoney(plan.spend_prorated_budget)] },
+  { label: 'Actual MTD', values: [fmtMoney(plan.spend_actual_mtd)] },
+  { label: 'Full Month Budget', values: [fmtMoney(plan.spend_budget)] },
+]);
+
+// Colored +/- dollar delta for table cells (green = ahead of target, red = behind)
+function deltaCell(value) {
+  if (value == null) return '—';
+  const cls = value >= 0 ? 'delta-up' : 'delta-down';
+  const sign = value >= 0 ? '+' : '';
+  return `<span class="${cls}">${sign}${fmtMoney(value)}</span>`;
+}
+
+const tbody = document.querySelector('#monthlyTable tbody');
+tbody.innerHTML = REPORT_DATA.monthly_history.map(m => {
+  let incomePill, spendPill;
+  if (m.is_current && m.income_projected != null) {
+    // Current (partial) month: judge by projected full-month pace, not the
+    // partial actual vs. the full target — that would show a false "miss"
+    // every month even when on track.
+    incomePill = m.income_projected >= m.income_target
+      ? '<span class="pill ontrack">ON TRACK</span>'
+      : '<span class="pill atrisk">AT RISK</span>';
+  } else if (m.income_actual == null) {
+    incomePill = '<span class="pill na">—</span>';
+  } else {
+    incomePill = m.income_actual >= m.income_target
+      ? '<span class="pill hit">HIT</span>'
+      : '<span class="pill miss">MISS</span>';
+  }
+
+  if (m.is_current && m.spend_projected != null) {
+    spendPill = m.spend_projected <= m.spend_budget
+      ? '<span class="pill ontrack">ON TRACK</span>'
+      : '<span class="pill atrisk">OVER PACE</span>';
+  } else if (m.spend_actual == null) {
+    spendPill = '<span class="pill na">—</span>';
+  } else {
+    spendPill = m.spend_actual <= m.spend_budget
+      ? '<span class="pill hit">ON BUDGET</span>'
+      : '<span class="pill miss">OVER</span>';
+  }
+
+  const monthlyRoas = (m.gross_sales_actual != null && m.spend_actual)
+    ? fmtX(m.gross_sales_actual / m.spend_actual) : '—';
+
+  return `<tr class="${m.is_current ? 'current' : ''}">
+    <td>${m.month}</td>
+    <td>${fmtMoney(m.income_target)}</td>
+    <td>${fmtMoney(m.income_actual)}</td>
+    <td>${deltaCell(m.income_delta)}</td>
+    <td>${incomePill}</td>
+    <td>${fmtMoney(m.gross_sales_target)}</td>
+    <td>${fmtMoney(m.gross_sales_actual)}</td>
+    <td>${deltaCell(m.gross_sales_delta)}</td>
+    <td>${fmtMoney(m.spend_budget)}</td>
+    <td>${fmtMoney(m.spend_actual)}</td>
+    <td>${spendPill}</td>
+    <td>${monthlyRoas}</td>
+  </tr>`;
+}).join('');
+
+// ── Totals row ────────────────────────────────────────────────────────────────
+function statusPill(status) {
+  const map = {
+    hit: '<span class="pill hit">HIT</span>',
+    miss: '<span class="pill miss">MISS</span>',
+    ontrack: '<span class="pill ontrack">ON TRACK</span>',
+    atrisk: '<span class="pill atrisk">AT RISK</span>',
+  };
+  return map[status] || '<span class="pill na">—</span>';
+}
+
+const totals = REPORT_DATA.totals;
+const ytd = REPORT_DATA.ytd;
+document.querySelector('#monthlyTable tfoot').innerHTML = `<tr class="ytd-row">
+  <td>${ytd.label}</td>
+  <td>${fmtMoney(ytd.income_target)}</td>
+  <td>${fmtMoney(ytd.income_actual)}</td>
+  <td>${deltaCell(ytd.income_delta)}</td>
+  <td>${statusPill(ytd.income_status)}</td>
+  <td>${fmtMoney(ytd.gross_sales_target)}</td>
+  <td>${fmtMoney(ytd.gross_sales_actual)}</td>
+  <td>${deltaCell(ytd.gross_sales_delta)}</td>
+  <td>${fmtMoney(ytd.spend_budget)}</td>
+  <td>${fmtMoney(ytd.spend_actual)}</td>
+  <td>${statusPill(ytd.spend_status)}</td>
+  <td>${ytd.roas != null ? fmtX(ytd.roas) : '—'}</td>
+</tr><tr>
+  <td>Total (Year)</td>
+  <td>${fmtMoney(totals.income_target)}</td>
+  <td>${fmtMoney(totals.income_actual)}</td>
+  <td>${deltaCell(totals.income_delta)}</td>
+  <td>${statusPill(totals.income_status)}</td>
+  <td>${fmtMoney(totals.gross_sales_target)}</td>
+  <td>${fmtMoney(totals.gross_sales_actual)}</td>
+  <td>${deltaCell(totals.gross_sales_delta)}</td>
+  <td>${fmtMoney(totals.spend_budget)}</td>
+  <td>${fmtMoney(totals.spend_actual)}</td>
+  <td>${statusPill(totals.spend_status)}</td>
+  <td>${totals.roas != null ? fmtX(totals.roas) : '—'}</td>
+</tr>`;
+
+// ── Full-year trend & projection ──────────────────────────────────────────────
+const t = REPORT_DATA.trend;
+
+const incomeDelta = t.projected_annual_income != null
+  ? (t.projected_annual_income - t.annual_income_target) : null;
+const spendDelta = t.projected_annual_spend != null
+  ? (t.projected_annual_spend - t.annual_spend_budget) : null;
+
+document.getElementById('trendSummaryCards').innerHTML = [
+  cardHTML('Projected Annual Net Income', fmtMoney(t.projected_annual_income),
+    `vs. target ${fmtMoney(t.annual_income_target)}`,
+    t.income_attainment_pct != null ? t.income_attainment_pct - 100 : null,
+    (t.income_attainment_pct || 0) >= 100 ? 'good' : (t.income_attainment_pct || 0) >= 90 ? 'warn' : 'bad'),
+  cardHTML('Projected Annual Gross Sales', fmtMoney(t.projected_annual_gross_sales),
+    `vs. target ${fmtMoney(t.annual_gross_sales_target)}`,
+    t.gross_attainment_pct != null ? t.gross_attainment_pct - 100 : null,
+    (t.gross_attainment_pct || 0) >= 100 ? 'good' : (t.gross_attainment_pct || 0) >= 90 ? 'warn' : 'bad'),
+  cardHTML('Projected Annual Ad Spend', fmtMoney(t.projected_annual_spend),
+    `vs. budget ${fmtMoney(t.annual_spend_budget)}`,
+    t.spend_attainment_pct != null ? t.spend_attainment_pct - 100 : null,
+    (t.spend_attainment_pct || 0) <= 100 ? 'good' : (t.spend_attainment_pct || 0) <= 110 ? 'warn' : 'bad'),
+].join('').replace(/YoY/g, 'vs. Plan');
+
+document.getElementById('recommendation').textContent = '💡 ' + t.recommendation;
+
+function trendLineChart(canvasId, months, target, actual, projected, targetLabel, lyActual) {
+  return new Chart(document.getElementById(canvasId), {
+    type: 'line',
+    data: {
+      labels: months,
+      datasets: [
+        { label: targetLabel, data: target, borderColor: COLOR_TARGET, borderDash: [4,4], pointRadius: 0, tension: 0 },
+        { label: 'Actual', data: actual, borderColor: COLOR_GROSS, backgroundColor: COLOR_GROSS, pointRadius: 3, tension: 0.15 },
+        { label: 'Projected', data: projected, borderColor: COLOR_GROSS, borderDash: [6,4], pointRadius: 2, pointStyle: 'triangle', tension: 0.15 },
+        { label: 'Last Year (YTD pace)', data: lyActual, borderColor: COLOR_NET, pointRadius: 2, tension: 0.15 },
+      ],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom' } },
+      scales: { y: { beginAtZero: true, ticks: { callback: v => '$' + (v/1000).toFixed(0) + 'k' } } },
+    },
+  });
+}
+
+trendLineChart('chartTrendIncome', t.months, t.cum_target_income, t.cum_actual_income, t.cum_projected_income, 'Cumulative Target', t.cum_actual_income_ly);
+trendLineChart('chartTrendSpend', t.months, t.cum_target_spend, t.cum_actual_spend, t.cum_projected_spend, 'Cumulative Budget', t.cum_actual_spend_ly);
+
+// ── Scaling opportunities ─────────────────────────────────────────────────────
+const s = REPORT_DATA.scaling;
+document.getElementById('scalingBasis').textContent =
+  `Basis: ${s.basis} · Current True ROAS ${fmtX(s.current_roas)} · Current ROI ${fmtX(s.current_roi)}`;
+
+const scalingLabels = ['Current', ...s.targets.map(x => x.label)];
+barChart(document.getElementById('chartScaling'), scalingLabels, [
+  { label: 'Daily Revenue (Gross Sales)', backgroundColor: COLOR_GROSS,
+    data: [s.current_daily_gross, ...s.targets.map(x => x.daily_revenue_target)] },
+  { label: 'Required Daily Ad Spend', backgroundColor: COLOR_SPEND,
+    data: [s.current_daily_spend, ...s.targets.map(x => x.required_daily_spend)] },
+]);
+
+dataTable('tableScaling', ['Daily Revenue Target', 'Required Daily Spend', 'Δ Spend vs. Current', 'Implied Daily Net Sales', 'Monthly Spend Equivalent'], [
+  { label: 'Current (7-day avg)', values: [
+      fmtMoney(s.current_daily_gross), fmtMoney(s.current_daily_spend), '—',
+      fmtMoney(s.current_daily_net), fmtMoney(s.current_daily_spend != null ? s.current_daily_spend * 30 : null),
+  ]},
+  ...s.targets.map(x => ({ label: x.label, values: [
+      fmtMoney(x.daily_revenue_target), fmtMoney(x.required_daily_spend),
+      (x.delta_spend_vs_current == null ? '—' : (x.delta_spend_vs_current >= 0 ? '+' : '') + fmtMoney(x.delta_spend_vs_current)),
+      fmtMoney(x.implied_net_sales), fmtMoney(x.monthly_spend_equivalent),
+  ]})),
+], 'Scenario');
+</script>
+</body>
+</html>
