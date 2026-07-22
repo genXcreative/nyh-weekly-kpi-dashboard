@@ -7,7 +7,7 @@ on:
     # does not adjust for daylight saving, but the script computes its own "today"
     # in Pacific time regardless of what UTC hour it actually runs at, so this only
     # needs to land comfortably within Monday Pacific - it does not need to be exact.
-    - cron: '0 14 * * 1'
+    - cron: '0 13 * * 1'
   workflow_dispatch: {}   # adds a manual "Run workflow" button on the Actions tab, for testing
 
 permissions:
