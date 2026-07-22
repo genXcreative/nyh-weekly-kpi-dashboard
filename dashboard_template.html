@@ -81,33 +81,25 @@
   </section>
 
   <section>
-    <h2>Month to Date vs. Same Period Last Year</h2>
-    <div class="grid2">
-      <div>
-        <div class="chart-box"><canvas id="chartMtd"></canvas></div>
-        <div class="data-table-wrap"><table id="tableMtd"><thead></thead><tbody></tbody></table></div>
-      </div>
-      <div>
-        <div class="chart-box"><canvas id="chartMtdRatio"></canvas></div>
-        <div class="data-table-wrap"><table id="tableMtdRatio"><thead></thead><tbody></tbody></table></div>
-      </div>
-    </div>
-  </section>
-
-  <section>
     <h2>Financial Plan — Month to Date Attainment (Net vs. Gross)</h2>
     <p class="chart-note" style="margin-bottom: 12px;">Net Income is the CFO/CEO view (after discounts &amp; returns). Gross Sales is the CDO/marketing view — the number True ROAS is measured against.</p>
     <div class="grid3">
       <div>
-        <div class="chart-box"><canvas id="chartNetIncomePlan"></canvas></div>
+        <div class="chart-box">
+          <div class="label">NET SALES</div>
+          <canvas id="chartNetIncomePlan"></canvas></div>
         <div class="data-table-wrap"><table id="tableNetIncomePlan"><thead></thead><tbody></tbody></table></div>
       </div>
       <div>
-        <div class="chart-box"><canvas id="chartGrossSalesPlan"></canvas></div>
+        <div class="chart-box">
+          <div class="label">GROSS SALES</div>
+          <canvas id="chartGrossSalesPlan"></canvas></div>
         <div class="data-table-wrap"><table id="tableGrossSalesPlan"><thead></thead><tbody></tbody></table></div>
       </div>
       <div>
-        <div class="chart-box"><canvas id="chartSpendPlan"></canvas></div>
+        <div class="chart-box">
+          <div class="label">AD SPEND</div>
+          <canvas id="chartSpendPlan"></canvas></div>
         <div class="data-table-wrap"><table id="tableSpendPlan"><thead></thead><tbody></tbody></table></div>
       </div>
     </div>
