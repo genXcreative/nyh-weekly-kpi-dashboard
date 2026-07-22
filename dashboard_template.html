@@ -30,6 +30,7 @@
   .delta-up { color: #10b981; font-weight: 600; }
   .delta-down { color: #ef4444; font-weight: 600; }
   .chart-box { background: #fff; border-radius: 10px 10px 0 0; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.08); position: relative; height: 280px; }
+  .chart-box .label { font-size: 11px; text-transform: uppercase; color: #6b7280; letter-spacing: .03em; }
   .data-table-wrap { margin-top: -1px; }
   table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 0 0 10px 10px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
   table.standalone { border-radius: 10px; }
@@ -99,15 +100,21 @@
     <p class="chart-note" style="margin-bottom: 12px;">Net Income is the CFO/CEO view (after discounts &amp; returns). Gross Sales is the CDO/marketing view — the number True ROAS is measured against.</p>
     <div class="grid3">
       <div>
-        <div class="chart-box"><canvas id="chartNetIncomePlan"></canvas></div>
+        <div class="chart-box">
+          <div class="label">NET SALES</div>
+          <canvas id="chartNetIncomePlan"></canvas></div>
         <div class="data-table-wrap"><table id="tableNetIncomePlan"><thead></thead><tbody></tbody></table></div>
       </div>
       <div>
-        <div class="chart-box"><canvas id="chartGrossSalesPlan"></canvas></div>
+        <div class="chart-box">
+          <div class="label">GROSS SALES</div>
+          <canvas id="chartGrossSalesPlan"></canvas></div>
         <div class="data-table-wrap"><table id="tableGrossSalesPlan"><thead></thead><tbody></tbody></table></div>
       </div>
       <div>
-        <div class="chart-box"><canvas id="chartSpendPlan"></canvas></div>
+        <div class="chart-box">
+          <div class="label">AD SPEND</div>
+          <canvas id="chartSpendPlan"></canvas></div>
         <div class="data-table-wrap"><table id="tableSpendPlan"><thead></thead><tbody></tbody></table></div>
       </div>
     </div>
@@ -285,7 +292,7 @@ const COLOR_TREND = '#6366f1'; // indigo-500 — distinct from actual (green/red
 barChart(document.getElementById('chartNetIncomePlan'), [plan.month], [
   { label: 'Prorated Target', backgroundColor: COLOR_TARGET, data: [plan.net_income_prorated_target] },
   { label: 'Actual MTD', backgroundColor: plan.net_income_actual_mtd >= plan.net_income_prorated_target ? '#10b981' : '#ef4444', data: [plan.net_income_actual_mtd] },
-  { label: 'Trending', backgroundColor: plan.net_income_projected >= plan.net_income_target ? '#10b981' : '#ef4444', data: [plan.net_income_projected] },
+  { label: 'Trending', backgroundColor: plan.net_income_projected >= plan.net_income_target ? '#007fff' : '#ef4444', data: [plan.net_income_projected] },
   { label: 'Full Month Target', backgroundColor: COLOR_FULL, data: [plan.net_income_target] },
 ]);
 dataTable('tableNetIncomePlan', [plan.month], [
@@ -298,7 +305,7 @@ dataTable('tableNetIncomePlan', [plan.month], [
 barChart(document.getElementById('chartGrossSalesPlan'), [plan.month], [
   { label: 'Prorated Target', backgroundColor: COLOR_TARGET, data: [plan.gross_sales_prorated_target] },
   { label: 'Actual MTD', backgroundColor: plan.gross_sales_actual_mtd >= plan.gross_sales_prorated_target ? '#10b981' : '#ef4444', data: [plan.gross_sales_actual_mtd] },
-  { label: 'Trending', backgroundColor: plan.gross_sales_projected >= plan.gross_sales_target ? '#10b981' : '#ef4444', data: [plan.gross_sales_projected] },
+  { label: 'Trending', backgroundColor: plan.gross_sales_projected >= plan.gross_sales_target ? '#007fff' : '#ef4444', data: [plan.gross_sales_projected] },
   { label: 'Full Month Target', backgroundColor: COLOR_FULL, data: [plan.gross_sales_target] },
 ]);
 dataTable('tableGrossSalesPlan', [plan.month], [
