@@ -81,25 +81,33 @@
   </section>
 
   <section>
+    <h2>Month to Date vs. Same Period Last Year</h2>
+    <div class="grid2">
+      <div>
+        <div class="chart-box"><canvas id="chartMtd"></canvas></div>
+        <div class="data-table-wrap"><table id="tableMtd"><thead></thead><tbody></tbody></table></div>
+      </div>
+      <div>
+        <div class="chart-box"><canvas id="chartMtdRatio"></canvas></div>
+        <div class="data-table-wrap"><table id="tableMtdRatio"><thead></thead><tbody></tbody></table></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
     <h2>Financial Plan — Month to Date Attainment (Net vs. Gross)</h2>
     <p class="chart-note" style="margin-bottom: 12px;">Net Income is the CFO/CEO view (after discounts &amp; returns). Gross Sales is the CDO/marketing view — the number True ROAS is measured against.</p>
     <div class="grid3">
       <div>
-        <div class="chart-box">
-          <div class="label">NET SALES</div>
-          <canvas id="chartNetIncomePlan"></canvas></div>
+        <div class="chart-box"><canvas id="chartNetIncomePlan"></canvas></div>
         <div class="data-table-wrap"><table id="tableNetIncomePlan"><thead></thead><tbody></tbody></table></div>
       </div>
       <div>
-        <div class="chart-box">
-          <div class="label">GROSS SALES</div>
-          <canvas id="chartGrossSalesPlan"></canvas></div>
+        <div class="chart-box"><canvas id="chartGrossSalesPlan"></canvas></div>
         <div class="data-table-wrap"><table id="tableGrossSalesPlan"><thead></thead><tbody></tbody></table></div>
       </div>
       <div>
-        <div class="chart-box">
-          <div class="label">AD SPEND</div>
-          <canvas id="chartSpendPlan"></canvas></div>
+        <div class="chart-box"><canvas id="chartSpendPlan"></canvas></div>
         <div class="data-table-wrap"><table id="tableSpendPlan"><thead></thead><tbody></tbody></table></div>
       </div>
     </div>
@@ -272,36 +280,44 @@ dataTable('tableMtdRatio', ['This Year', 'Last Year', 'YoY Δ'], [
 ]);
 
 const plan = REPORT_DATA.plan;
+const COLOR_TREND = '#6366f1'; // indigo-500 — distinct from actual (green/red) and target (gray)
+
 barChart(document.getElementById('chartNetIncomePlan'), [plan.month], [
   { label: 'Prorated Target', backgroundColor: COLOR_TARGET, data: [plan.net_income_prorated_target] },
   { label: 'Actual MTD', backgroundColor: plan.net_income_actual_mtd >= plan.net_income_prorated_target ? '#10b981' : '#ef4444', data: [plan.net_income_actual_mtd] },
+  { label: 'Trending', backgroundColor: plan.net_income_projected >= plan.net_income_target ? '#10b981' : '#ef4444', data: [plan.net_income_projected] },
   { label: 'Full Month Target', backgroundColor: COLOR_FULL, data: [plan.net_income_target] },
 ]);
 dataTable('tableNetIncomePlan', [plan.month], [
   { label: 'Prorated Target', values: [fmtMoney(plan.net_income_prorated_target)] },
   { label: 'Actual MTD', values: [fmtMoney(plan.net_income_actual_mtd)] },
+  { label: 'Trending', values: [fmtMoney(plan.net_income_projected)] },
   { label: 'Full Month Target', values: [fmtMoney(plan.net_income_target)] },
 ]);
 
 barChart(document.getElementById('chartGrossSalesPlan'), [plan.month], [
   { label: 'Prorated Target', backgroundColor: COLOR_TARGET, data: [plan.gross_sales_prorated_target] },
   { label: 'Actual MTD', backgroundColor: plan.gross_sales_actual_mtd >= plan.gross_sales_prorated_target ? '#10b981' : '#ef4444', data: [plan.gross_sales_actual_mtd] },
+  { label: 'Trending', backgroundColor: plan.gross_sales_projected >= plan.gross_sales_target ? '#10b981' : '#ef4444', data: [plan.gross_sales_projected] },
   { label: 'Full Month Target', backgroundColor: COLOR_FULL, data: [plan.gross_sales_target] },
 ]);
 dataTable('tableGrossSalesPlan', [plan.month], [
   { label: 'Prorated Target', values: [fmtMoney(plan.gross_sales_prorated_target)] },
   { label: 'Actual MTD', values: [fmtMoney(plan.gross_sales_actual_mtd)] },
+  { label: 'Trending', values: [fmtMoney(plan.gross_sales_projected)] },
   { label: 'Full Month Target', values: [fmtMoney(plan.gross_sales_target)] },
 ]);
 
 barChart(document.getElementById('chartSpendPlan'), [plan.month], [
   { label: 'Prorated Budget', backgroundColor: COLOR_TARGET, data: [plan.spend_prorated_budget] },
   { label: 'Actual MTD', backgroundColor: plan.spend_actual_mtd <= plan.spend_prorated_budget ? '#10b981' : '#ef4444', data: [plan.spend_actual_mtd] },
+  { label: 'Trending', backgroundColor: plan.spend_projected <= plan.spend_budget ? '#10b981' : '#ef4444', data: [plan.spend_projected] },
   { label: 'Full Month Budget', backgroundColor: COLOR_FULL, data: [plan.spend_budget] },
 ]);
 dataTable('tableSpendPlan', [plan.month], [
   { label: 'Prorated Budget', values: [fmtMoney(plan.spend_prorated_budget)] },
   { label: 'Actual MTD', values: [fmtMoney(plan.spend_actual_mtd)] },
+  { label: 'Trending', values: [fmtMoney(plan.spend_projected)] },
   { label: 'Full Month Budget', values: [fmtMoney(plan.spend_budget)] },
 ]);
 
