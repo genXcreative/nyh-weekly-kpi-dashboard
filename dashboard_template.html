@@ -97,7 +97,7 @@
 
   <section>
     <h2>Financial Plan — Month to Date Attainment (Net vs. Gross)</h2>
-    <p class="chart-note" style="margin-bottom: 12px;">Net Income is the CFO/CEO view (after discounts &amp; returns). Gross Sales is the CDO/marketing view — the number True ROAS is measured against.</p>
+    <p class="chart-note" style="margin-bottom: 12px;">Net Sales is the CFO/CEO view (after discounts &amp; returns). Gross Sales is the CDO/marketing view — the number True ROAS is measured against.</p>
     <div class="grid3">
       <div>
         <div class="chart-box">
@@ -126,8 +126,8 @@
       <thead>
         <tr>
           <th>Month</th>
-          <th>Net Income Target</th>
-          <th>Net Income Actual</th>
+          <th>Net Sales Target</th>
+          <th>Net Sales Actual</th>
           <th>Δ (Net)</th>
           <th>Net Result</th>
           <th>Gross Sales Target</th>
@@ -435,7 +435,7 @@ const spendDelta = t.projected_annual_spend != null
   ? (t.projected_annual_spend - t.annual_spend_budget) : null;
 
 document.getElementById('trendSummaryCards').innerHTML = [
-  cardHTML('Projected Annual Net Income', fmtMoney(t.projected_annual_income),
+  cardHTML('Projected Annual Net Sales', fmtMoney(t.projected_annual_income),
     `vs. target ${fmtMoney(t.annual_income_target)}`,
     t.income_attainment_pct != null ? t.income_attainment_pct - 100 : null,
     (t.income_attainment_pct || 0) >= 100 ? 'good' : (t.income_attainment_pct || 0) >= 90 ? 'warn' : 'bad'),
@@ -456,7 +456,7 @@ function yoyDelta(projected, lyTotal) {
 }
 
 dataTable('tableTrendYoy', ['Prior Year Total', 'Projected This Year', 'Δ vs. Last Year', '% vs. Last Year'], [
-  { label: 'Net Income', values: [
+  { label: 'Net Sales', values: [
       fmtMoney(t.annual_income_ly_total), fmtMoney(t.projected_annual_income),
       deltaCell(yoyDelta(t.projected_annual_income, t.annual_income_ly_total)),
       fmtPct(pctDelta(t.projected_annual_income, t.annual_income_ly_total)),
