@@ -1,0 +1,3 @@
+google-ads>=24.0.0
+requests>=2.31.0
+shopifyql[all]>=0.1.0
