@@ -29,6 +29,12 @@ Optional environment variables:
     GOOGLE_SHEETS_SERVICE_ACCOUNT_JSON   full JSON key for a Google Cloud service account
                                           with Sheets API access (optional — skipped if unset)
     GOOGLE_SHEET_ID                      target spreadsheet ID (optional — skipped if unset)
+    EMAIL_SMTP_HOST                  defaults to smtp.gmail.com (optional group — skipped
+    EMAIL_SMTP_PORT                  defaults to 587                if not all of
+    EMAIL_FROM_ADDRESS               sending account's address       FROM_ADDRESS,
+    EMAIL_APP_PASSWORD               Gmail/Workspace App Password    APP_PASSWORD, and
+    EMAIL_RECIPIENTS                 comma-separated recipient list  RECIPIENTS are set)
+    REPORT_LIVE_URL                  optional — if set, included as a link in the email
 """
 import calendar
 import json
@@ -643,61 +649,259 @@ print(f"Wrote {history_dir / f'report_{ts}.html'}")
 print(f"Wrote {data_dir / f'weekly_kpi_data_{ts}.json'}")
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Google Sheets historical log — appends one row per run so key numbers build
-# into a running table over time (for charting/pivoting in Sheets, something
-# the static HTML dashboard can't do on its own). Skipped entirely if the two
-# env vars below aren't set — everything above this point is unaffected.
+# PDF export — renders the dashboard through headless Chromium (not a
+# JS-blind HTML-to-PDF tool), so the Chart.js canvases actually appear in the
+# PDF exactly as they look on the live page. Written to "latest_report.pdf"
+# at repo root + a dated archive under history/. Skipped (non-fatally) if
+# Playwright/Chromium isn't available — everything above is unaffected.
+# ─────────────────────────────────────────────────────────────────────────────
+pdf_path = SCRIPT_DIR / "latest_report.pdf"
+pdf_generated = False
+try:
+    from playwright.sync_api import sync_playwright
+
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page()
+        page.set_content(html_out, wait_until="load")
+        page.wait_for_timeout(500)  # small buffer for any late chart/layout settling
+        page.pdf(
+            path=str(pdf_path),
+            format="A4",
+            landscape=True,
+            print_background=True,
+            margin={"top": "12mm", "bottom": "12mm", "left": "10mm", "right": "10mm"},
+        )
+        browser.close()
+
+    (history_dir / f"report_{ts}.pdf").write_bytes(pdf_path.read_bytes())
+    pdf_generated = True
+    print(f"Wrote {pdf_path}")
+    print(f"Wrote {history_dir / f'report_{ts}.pdf'}")
+except Exception as e:
+    print(f"PDF export failed (non-fatal — HTML/Sheets outputs are unaffected): {e}")
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Google Sheets — full data dump. Every table shown on the dashboard gets its
+# own tab, cleared and rewritten fresh each run (not an accumulating log) so
+# each tab always mirrors exactly what's on the live page this run. Skipped
+# entirely if the two env vars below aren't set — everything above this
+# point is unaffected either way.
 # ─────────────────────────────────────────────────────────────────────────────
 GOOGLE_SHEETS_SERVICE_ACCOUNT_JSON = os.getenv("GOOGLE_SHEETS_SERVICE_ACCOUNT_JSON", "").strip()
 GOOGLE_SHEET_ID = os.getenv("GOOGLE_SHEET_ID", "").strip()
 
 if not GOOGLE_SHEETS_SERVICE_ACCOUNT_JSON or not GOOGLE_SHEET_ID:
-    print("GOOGLE_SHEETS_SERVICE_ACCOUNT_JSON / GOOGLE_SHEET_ID not set — skipping Google Sheets log.")
+    print("GOOGLE_SHEETS_SERVICE_ACCOUNT_JSON / GOOGLE_SHEET_ID not set — skipping Google Sheets export.")
 else:
     try:
         import gspread
 
-        HISTORY_SHEET_NAME = "History"
-        HISTORY_HEADER = [
-            "Generated At", "As-Of Date", "Prior 7 Days Range",
-            "7d Gross Sales", "7d Net Sales", "7d Ad Spend", "7d True ROAS", "7d ROI",
-            "MTD Gross Sales", "MTD Net Sales", "MTD Ad Spend", "MTD True ROAS", "MTD ROI",
-            "Month", "Net Income Target", "Net Income Actual MTD", "Net Income Trending",
-            "Gross Sales Target", "Gross Sales Actual MTD", "Gross Sales Trending",
-            "Ad Spend Budget", "Ad Spend Actual MTD", "Ad Spend Trending",
-            "YTD Net Income Actual", "YTD Net Income Target",
-            "YTD Gross Sales Actual", "YTD Gross Sales Target",
-            "YTD Ad Spend Actual", "YTD Ad Spend Budget",
-            "Projected Annual Net Income", "Projected Annual Gross Sales", "Projected Annual Ad Spend",
-        ]
+        def _write_sheet_table(gc_client, sheet_id, tab_name, header, rows):
+            sh = gc_client.open_by_key(sheet_id)
+            try:
+                ws = sh.worksheet(tab_name)
+                ws.clear()
+            except gspread.WorksheetNotFound:
+                ws = sh.add_worksheet(title=tab_name, rows=max(len(rows) + 10, 50), cols=max(len(header), 10))
+            ws.update([header] + [["" if v is None else v for v in row] for row in rows], value_input_option="USER_ENTERED")
 
         gc = gspread.service_account_from_dict(json.loads(GOOGLE_SHEETS_SERVICE_ACCOUNT_JSON))
-        sh = gc.open_by_key(GOOGLE_SHEET_ID)
-        try:
-            ws = sh.worksheet(HISTORY_SHEET_NAME)
-        except gspread.WorksheetNotFound:
-            ws = sh.add_worksheet(title=HISTORY_SHEET_NAME, rows=1000, cols=len(HISTORY_HEADER))
 
-        if not ws.get_all_values():
-            ws.append_row(HISTORY_HEADER)
+        def _yoy_pct(new, old):
+            v = pct_change(new, old)
+            return round(v, 1) if v is not None else None
 
-        row = [
-            report_data["generated_at"], TODAY.isoformat(), report_data["last7_range"],
-            period_last7["gross_sales"], period_last7["net_sales"], period_last7["spend"],
-            period_last7["roas"], period_last7["roi"],
-            period_mtd["gross_sales"], period_mtd["net_sales"], period_mtd["spend"],
-            period_mtd["roas"], period_mtd["roi"],
-            plan["month"], plan["net_income_target"], plan["net_income_actual_mtd"], plan["net_income_projected"],
-            plan["gross_sales_target"], plan["gross_sales_actual_mtd"], plan["gross_sales_projected"],
-            plan["spend_budget"], plan["spend_actual_mtd"], plan["spend_projected"],
-            ytd["income_actual"], ytd["income_target"],
-            ytd["gross_sales_actual"], ytd["gross_sales_target"],
-            ytd["spend_actual"], ytd["spend_budget"],
-            trend["projected_annual_income"], trend["projected_annual_gross_sales"], trend["projected_annual_spend"],
+        # Tabs 1-2: Prior 7 Days
+        _write_sheet_table(gc, GOOGLE_SHEET_ID, "Prior 7 Days", ["Metric", "This Year", "Last Year", "YoY Δ %"], [
+            ["Gross Sales", period_last7["gross_sales"], period_last7_ly["gross_sales"], _yoy_pct(period_last7["gross_sales"], period_last7_ly["gross_sales"])],
+            ["Net Sales", period_last7["net_sales"], period_last7_ly["net_sales"], _yoy_pct(period_last7["net_sales"], period_last7_ly["net_sales"])],
+            ["Ad Spend", period_last7["spend"], period_last7_ly["spend"], _yoy_pct(period_last7["spend"], period_last7_ly["spend"])],
+        ])
+        _write_sheet_table(gc, GOOGLE_SHEET_ID, "Prior 7 Days Ratios", ["Metric", "This Year", "Last Year", "YoY Δ %"], [
+            ["True ROAS", period_last7["roas"], period_last7_ly["roas"], yoy_deltas["last7_roas_pct"]],
+            ["ROI", period_last7["roi"], period_last7_ly["roi"], yoy_deltas["last7_roi_pct"]],
+        ])
+
+        # Tabs 3-4: MTD
+        _write_sheet_table(gc, GOOGLE_SHEET_ID, "MTD", ["Metric", "This Year", "Last Year", "YoY Δ %"], [
+            ["Gross Sales", period_mtd["gross_sales"], period_mtd_ly["gross_sales"], _yoy_pct(period_mtd["gross_sales"], period_mtd_ly["gross_sales"])],
+            ["Net Sales", period_mtd["net_sales"], period_mtd_ly["net_sales"], _yoy_pct(period_mtd["net_sales"], period_mtd_ly["net_sales"])],
+            ["Ad Spend", period_mtd["spend"], period_mtd_ly["spend"], _yoy_pct(period_mtd["spend"], period_mtd_ly["spend"])],
+        ])
+        _write_sheet_table(gc, GOOGLE_SHEET_ID, "MTD Ratios", ["Metric", "This Year", "Last Year", "YoY Δ %"], [
+            ["True ROAS", period_mtd["roas"], period_mtd_ly["roas"], yoy_deltas["mtd_roas_pct"]],
+            ["ROI", period_mtd["roi"], period_mtd_ly["roi"], yoy_deltas["mtd_roi_pct"]],
+        ])
+
+        # Tabs 5-7: Financial Plan — MTD Attainment
+        _write_sheet_table(gc, GOOGLE_SHEET_ID, "Plan - Net Income", ["Metric", plan["month"]], [
+            ["Prorated Target", plan["net_income_prorated_target"]],
+            ["Actual MTD", plan["net_income_actual_mtd"]],
+            ["Trending", plan["net_income_projected"]],
+            ["Full Month Target", plan["net_income_target"]],
+        ])
+        _write_sheet_table(gc, GOOGLE_SHEET_ID, "Plan - Gross Sales", ["Metric", plan["month"]], [
+            ["Prorated Target", plan["gross_sales_prorated_target"]],
+            ["Actual MTD", plan["gross_sales_actual_mtd"]],
+            ["Trending", plan["gross_sales_projected"]],
+            ["Full Month Target", plan["gross_sales_target"]],
+        ])
+        _write_sheet_table(gc, GOOGLE_SHEET_ID, "Plan - Ad Spend", ["Metric", plan["month"]], [
+            ["Prorated Budget", plan["spend_prorated_budget"]],
+            ["Actual MTD", plan["spend_actual_mtd"]],
+            ["Trending", plan["spend_projected"]],
+            ["Full Month Budget", plan["spend_budget"]],
+        ])
+
+        # Tab 8: Monthly Hits & Misses (+ YTD row + Totals/Full-Year row) — status
+        # labels replicate dashboard_template.html's incomePill/spendPill logic exactly.
+        monthly_header = [
+            "Month", "Net Income Target", "Net Income Actual", "Net Result",
+            "Gross Sales Target", "Gross Sales Actual", "Δ vs. Target (Gross)",
+            "Ad Spend Budget", "Ad Spend Actual", "Spend Result", "True ROAS",
         ]
-        ws.append_row(row)
-        print(f"Appended row to Google Sheet '{HISTORY_SHEET_NAME}' tab.")
+        monthly_rows = []
+        for m in monthly_history:
+            if m["is_current"] and m["income_projected"] is not None:
+                income_result = "ON TRACK" if m["income_projected"] >= m["income_target"] else "AT RISK"
+            elif m["income_actual"] is None:
+                income_result = "—"
+            else:
+                income_result = "HIT" if m["income_actual"] >= m["income_target"] else "MISS"
+
+            if m["is_current"] and m["spend_projected"] is not None:
+                spend_result = "ON TRACK" if m["spend_projected"] <= m["spend_budget"] else "OVER PACE"
+            elif m["spend_actual"] is None:
+                spend_result = "—"
+            else:
+                spend_result = "ON BUDGET" if m["spend_actual"] <= m["spend_budget"] else "OVER"
+
+            monthly_roas = (m["gross_sales_actual"] / m["spend_actual"]) if (m["gross_sales_actual"] is not None and m["spend_actual"]) else None
+
+            monthly_rows.append([
+                m["month"], m["income_target"], m["income_actual"], income_result,
+                m["gross_sales_target"], m["gross_sales_actual"], m["gross_sales_delta"],
+                m["spend_budget"], m["spend_actual"], spend_result,
+                round(monthly_roas, 3) if monthly_roas is not None else None,
+            ])
+        monthly_rows.append([
+            ytd["label"], ytd["income_target"], ytd["income_actual"], ytd["income_status"].upper(),
+            ytd["gross_sales_target"], ytd["gross_sales_actual"], ytd["gross_sales_delta"],
+            ytd["spend_budget"], ytd["spend_actual"], ytd["spend_status"].upper(),
+            ytd["roas"],
+        ])
+        monthly_rows.append([
+            "Total (Full Year)", totals["income_target"], totals["income_actual"], totals["income_status"].upper(),
+            totals["gross_sales_target"], totals["gross_sales_actual"], totals["gross_sales_delta"],
+            totals["spend_budget"], totals["spend_actual"], totals["spend_status"].upper(),
+            round(totals["roas"], 3) if totals["roas"] is not None else None,
+        ])
+        _write_sheet_table(gc, GOOGLE_SHEET_ID, "Monthly Hits & Misses", monthly_header, monthly_rows)
+
+        # Tab 9: Full-Year Trend — Prior Year Total vs. Projected
+        def _yoy_delta_val(projected, ly_total):
+            return round(projected - ly_total, 2) if (projected is not None and ly_total is not None) else None
+        _write_sheet_table(gc, GOOGLE_SHEET_ID, "Trend - PY vs Projected", ["Metric", "Prior Year Total", "Projected This Year", "Δ vs. Last Year", "% vs. Last Year"], [
+            ["Net Income", trend["annual_income_ly_total"], trend["projected_annual_income"],
+             _yoy_delta_val(trend["projected_annual_income"], trend["annual_income_ly_total"]),
+             _yoy_pct(trend["projected_annual_income"], trend["annual_income_ly_total"])],
+            ["Gross Sales", trend["annual_gross_sales_ly_total"], trend["projected_annual_gross_sales"],
+             _yoy_delta_val(trend["projected_annual_gross_sales"], trend["annual_gross_sales_ly_total"]),
+             _yoy_pct(trend["projected_annual_gross_sales"], trend["annual_gross_sales_ly_total"])],
+            ["Ad Spend", trend["annual_spend_ly_total"], trend["projected_annual_spend"],
+             _yoy_delta_val(trend["projected_annual_spend"], trend["annual_spend_ly_total"]),
+             _yoy_pct(trend["projected_annual_spend"], trend["annual_spend_ly_total"])],
+        ])
+
+        # Tabs 10-11: Trend detail — the actual cumulative series behind the two line charts
+        _write_sheet_table(gc, GOOGLE_SHEET_ID, "Trend Detail - Income", ["Month", "Cumulative Target", "Cumulative Actual", "Cumulative Projected", "Cumulative LY Actual"], [
+            [trend["months"][i], trend["cum_target_income"][i], trend["cum_actual_income"][i],
+             trend["cum_projected_income"][i], trend["cum_actual_income_ly"][i]]
+            for i in range(len(trend["months"]))
+        ])
+        _write_sheet_table(gc, GOOGLE_SHEET_ID, "Trend Detail - Spend", ["Month", "Cumulative Budget", "Cumulative Actual", "Cumulative Projected", "Cumulative LY Actual"], [
+            [trend["months"][i], trend["cum_target_spend"][i], trend["cum_actual_spend"][i],
+             trend["cum_projected_spend"][i], trend["cum_actual_spend_ly"][i]]
+            for i in range(len(trend["months"]))
+        ])
+
+        # Tab 12: Scaling Opportunities
+        scaling_rows = [[
+            "Current (7-day avg)", None, scaling["current_daily_spend"], None,
+            scaling["current_daily_net"], round(scaling["current_daily_spend"] * 30, 2) if scaling["current_daily_spend"] is not None else None,
+        ]]
+        for t in scaling["targets"]:
+            scaling_rows.append([
+                t["label"], t["daily_revenue_target"], t["required_daily_spend"], t["delta_spend_vs_current"],
+                t["implied_net_sales"], t["monthly_spend_equivalent"],
+            ])
+        _write_sheet_table(gc, GOOGLE_SHEET_ID, "Scaling Opportunities", ["Scenario", "Daily Revenue Target", "Required Daily Spend", "Δ Spend vs. Current", "Implied Daily Net Sales", "Monthly Spend Equivalent"], scaling_rows)
+
+        print("Google Sheets export complete (12 tabs written).")
     except Exception as e:
-        print(f"Google Sheets log failed (non-fatal, rest of the run is unaffected): {e}")
+        print(f"Google Sheets export failed (non-fatal, rest of the run is unaffected): {e}")
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Email the PDF to stakeholders via SMTP (stdlib only — no new dependency).
+# Skipped entirely if the required env vars aren't all set, or if PDF
+# generation above failed — everything else in the run is unaffected.
+# ─────────────────────────────────────────────────────────────────────────────
+EMAIL_SMTP_HOST = os.getenv("EMAIL_SMTP_HOST", "smtp.gmail.com").strip()
+EMAIL_SMTP_PORT = int((os.getenv("EMAIL_SMTP_PORT", "587") or "587").strip())
+EMAIL_FROM_ADDRESS = os.getenv("EMAIL_FROM_ADDRESS", "").strip()
+EMAIL_APP_PASSWORD = os.getenv("EMAIL_APP_PASSWORD", "").strip()
+EMAIL_RECIPIENTS = [addr.strip() for addr in os.getenv("EMAIL_RECIPIENTS", "").split(",") if addr.strip()]
+REPORT_LIVE_URL = os.getenv("REPORT_LIVE_URL", "").strip()
+
+if not pdf_generated:
+    print("Skipping email — no PDF was generated this run.")
+elif not (EMAIL_FROM_ADDRESS and EMAIL_APP_PASSWORD and EMAIL_RECIPIENTS):
+    print("EMAIL_FROM_ADDRESS / EMAIL_APP_PASSWORD / EMAIL_RECIPIENTS not fully set — skipping email.")
+else:
+    try:
+        import smtplib
+        from email import encoders
+        from email.mime.base import MIMEBase
+        from email.mime.multipart import MIMEMultipart
+        from email.mime.text import MIMEText
+
+        p7 = period_last7
+        subject = f"NYH Weekly KPI Report — {plan['month']} (as of {TODAY.isoformat()})"
+        roas_line = f"True ROAS (7d): {p7['roas']:.2f}x   |   ROI (7d): {p7['roi']:.2f}x" if p7["roas"] is not None else "True ROAS/ROI (7d): n/a"
+        body_lines = [
+            f"Weekly ecommerce KPI report — {report_data['last7_range']} vs. same week last year.",
+            "",
+            roas_line,
+            f"Net Income MTD: ${plan['net_income_actual_mtd']:,.0f} vs. target ${plan['net_income_target']:,.0f}",
+            f"Gross Sales MTD: ${plan['gross_sales_actual_mtd']:,.0f} vs. target ${plan['gross_sales_target']:,.0f}",
+            f"Ad Spend MTD: ${plan['spend_actual_mtd']:,.0f} vs. budget ${plan['spend_budget']:,.0f}",
+            "",
+            "Full dashboard attached as PDF.",
+        ]
+        if REPORT_LIVE_URL:
+            body_lines.append(f"Live interactive version: {REPORT_LIVE_URL}")
+
+        msg = MIMEMultipart()
+        msg["From"] = EMAIL_FROM_ADDRESS
+        msg["To"] = ", ".join(EMAIL_RECIPIENTS)
+        msg["Subject"] = subject
+        msg.attach(MIMEText("\n".join(body_lines), "plain"))
+
+        with open(pdf_path, "rb") as f:
+            part = MIMEBase("application", "octet-stream")
+            part.set_payload(f.read())
+        encoders.encode_base64(part)
+        part.add_header("Content-Disposition", f'attachment; filename="{pdf_path.name}"')
+        msg.attach(part)
+
+        with smtplib.SMTP(EMAIL_SMTP_HOST, EMAIL_SMTP_PORT) as server:
+            server.starttls()
+            server.login(EMAIL_FROM_ADDRESS, EMAIL_APP_PASSWORD)
+            server.sendmail(EMAIL_FROM_ADDRESS, EMAIL_RECIPIENTS, msg.as_string())
+
+        print(f"Emailed PDF report to: {', '.join(EMAIL_RECIPIENTS)}")
+    except Exception as e:
+        print(f"Email send failed (non-fatal, rest of the run is unaffected): {e}")
 
 print("Done.")
