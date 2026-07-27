@@ -376,14 +376,14 @@ tbody.innerHTML = REPORT_DATA.monthly_history.map(m => {
     <td>${fmtMoney(m.income_target)}</td>
     <td>${fmtMoney(m.income_actual)}</td>
 
-	<td>${fmtMoney(plan.net_income_projected)}</td>
+	<td>${fmtMoney(m.net_income_projected)}</td>
 
     <td>${deltaCell(m.income_delta)}</td>
     <td>${incomePill}</td>
     <td>${fmtMoney(m.gross_sales_target)}</td>
     <td>${fmtMoney(m.gross_sales_actual)}</td>
 
-	<td>${fmtMoney(plan.gross_sales_projected)}</td>
+	<td>${fmtMoney(m.gross_sales_projected)}</td>
 
     <td>${deltaCell(m.gross_sales_delta)}</td>
     <td>${fmtMoney(m.spend_budget)}</td>
