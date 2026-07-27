@@ -20,6 +20,15 @@ Required environment variables:
     GOOGLE_ADS_REFRESH_TOKEN
     GOOGLE_ADS_LOGIN_CUSTOMER_ID   the MCC / manager account id (digits only, no dashes)
     GOOGLE_ADS_CUSTOMER_ID         the target account id being reported on
+
+Optional environment variables:
+    REPORT_AS_OF_DATE               ISO date (YYYY-MM-DD). Runs the whole report as if
+                                     this were "today" — every window (prior 7 days, MTD,
+                                     YTD, trend) shifts to be relative to this date instead
+                                     of the real current date. Leave unset for normal runs.
+    GOOGLE_SHEETS_SERVICE_ACCOUNT_JSON   full JSON key for a Google Cloud service account
+                                          with Sheets API access (optional — skipped if unset)
+    GOOGLE_SHEET_ID                      target spreadsheet ID (optional — skipped if unset)
 """
 import calendar
 import json
@@ -37,9 +46,20 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Cell 4 equivalent — date windows, anchored to Pacific time
+#
+# REPORT_AS_OF_DATE lets a manual run generate the report as of any past date —
+# handy for backfilling a missed week or spot-checking a prior week's numbers —
+# without needing a separate code path. Every downstream window (prior 7 days,
+# MTD, YTD, trend, monthly history) is computed relative to TODAY, so setting
+# this one value consistently shifts the entire report.
 # ─────────────────────────────────────────────────────────────────────────────
 PACIFIC = ZoneInfo("America/Los_Angeles")
-TODAY = datetime.now(PACIFIC).date()
+_as_of_override = os.getenv("REPORT_AS_OF_DATE", "").strip()
+if _as_of_override:
+    TODAY = date.fromisoformat(_as_of_override)
+    print(f"REPORT_AS_OF_DATE set — running as if today were {TODAY} (real today is {datetime.now(PACIFIC).date()}).")
+else:
+    TODAY = datetime.now(PACIFIC).date()
 
 
 def prior_n_days_excluding_today(today, n):
@@ -499,7 +519,7 @@ def build_recommendation(income_att, spend_att):
     if income_att >= 1 and spend_att <= 1:
         return (f"Trending {income_gap:+.1f}% vs. the annual income target while pacing "
                 f"{-spend_gap:.1f}% under the ad spend budget — efficient. No spend change needed; "
-                f"the unused budget headroom allows opportunities for discussion.")
+                f"the unused budget headroom could be reinvested for further growth if desired.")
     if income_att >= 1 and spend_att > 1:
         return (f"Trending {income_gap:+.1f}% vs. the annual income target, but spend is pacing "
                 f"{spend_gap:.1f}% over budget. On track to hit target, just at a higher cost than "
@@ -600,17 +620,84 @@ html_out = template_html.replace("__REPORT_DATA_JSON__", json.dumps(report_data)
 print(f"Dashboard rendered ({len(html_out):,} characters).")
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Write outputs — index.html at repo root (served by GitHub Pages) + a dated
-# JSON snapshot under data/ (kept in git history for auditing). The workflow
-# file commits and pushes these; there is no Drive step in this version.
+# Write outputs — index.html at repo root (served by GitHub Pages, always the
+# most recently generated run — including as-of-date backfill runs) + a dated
+# HTML snapshot under history/ and a dated JSON snapshot under data/ (kept in
+# git history for auditing / browsing past runs). The workflow file commits
+# and pushes these; there is no Drive step in this version.
 # ─────────────────────────────────────────────────────────────────────────────
 (SCRIPT_DIR / "index.html").write_text(html_out, encoding="utf-8")
 
+ts = TODAY.strftime("%Y%m%d")
+
+history_dir = SCRIPT_DIR / "history"
+history_dir.mkdir(exist_ok=True)
+(history_dir / f"report_{ts}.html").write_text(html_out, encoding="utf-8")
+
 data_dir = SCRIPT_DIR / "data"
 data_dir.mkdir(exist_ok=True)
-ts = TODAY.strftime("%Y%m%d")
 (data_dir / f"weekly_kpi_data_{ts}.json").write_text(json.dumps(report_data, indent=2), encoding="utf-8")
 
 print(f"Wrote {SCRIPT_DIR / 'index.html'}")
+print(f"Wrote {history_dir / f'report_{ts}.html'}")
 print(f"Wrote {data_dir / f'weekly_kpi_data_{ts}.json'}")
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Google Sheets historical log — appends one row per run so key numbers build
+# into a running table over time (for charting/pivoting in Sheets, something
+# the static HTML dashboard can't do on its own). Skipped entirely if the two
+# env vars below aren't set — everything above this point is unaffected.
+# ─────────────────────────────────────────────────────────────────────────────
+GOOGLE_SHEETS_SERVICE_ACCOUNT_JSON = os.getenv("GOOGLE_SHEETS_SERVICE_ACCOUNT_JSON", "").strip()
+GOOGLE_SHEET_ID = os.getenv("GOOGLE_SHEET_ID", "").strip()
+
+if not GOOGLE_SHEETS_SERVICE_ACCOUNT_JSON or not GOOGLE_SHEET_ID:
+    print("GOOGLE_SHEETS_SERVICE_ACCOUNT_JSON / GOOGLE_SHEET_ID not set — skipping Google Sheets log.")
+else:
+    try:
+        import gspread
+
+        HISTORY_SHEET_NAME = "History"
+        HISTORY_HEADER = [
+            "Generated At", "As-Of Date", "Prior 7 Days Range",
+            "7d Gross Sales", "7d Net Sales", "7d Ad Spend", "7d True ROAS", "7d ROI",
+            "MTD Gross Sales", "MTD Net Sales", "MTD Ad Spend", "MTD True ROAS", "MTD ROI",
+            "Month", "Net Income Target", "Net Income Actual MTD", "Net Income Trending",
+            "Gross Sales Target", "Gross Sales Actual MTD", "Gross Sales Trending",
+            "Ad Spend Budget", "Ad Spend Actual MTD", "Ad Spend Trending",
+            "YTD Net Income Actual", "YTD Net Income Target",
+            "YTD Gross Sales Actual", "YTD Gross Sales Target",
+            "YTD Ad Spend Actual", "YTD Ad Spend Budget",
+            "Projected Annual Net Income", "Projected Annual Gross Sales", "Projected Annual Ad Spend",
+        ]
+
+        gc = gspread.service_account_from_dict(json.loads(GOOGLE_SHEETS_SERVICE_ACCOUNT_JSON))
+        sh = gc.open_by_key(GOOGLE_SHEET_ID)
+        try:
+            ws = sh.worksheet(HISTORY_SHEET_NAME)
+        except gspread.WorksheetNotFound:
+            ws = sh.add_worksheet(title=HISTORY_SHEET_NAME, rows=1000, cols=len(HISTORY_HEADER))
+
+        if not ws.get_all_values():
+            ws.append_row(HISTORY_HEADER)
+
+        row = [
+            report_data["generated_at"], TODAY.isoformat(), report_data["last7_range"],
+            period_last7["gross_sales"], period_last7["net_sales"], period_last7["spend"],
+            period_last7["roas"], period_last7["roi"],
+            period_mtd["gross_sales"], period_mtd["net_sales"], period_mtd["spend"],
+            period_mtd["roas"], period_mtd["roi"],
+            plan["month"], plan["net_income_target"], plan["net_income_actual_mtd"], plan["net_income_projected"],
+            plan["gross_sales_target"], plan["gross_sales_actual_mtd"], plan["gross_sales_projected"],
+            plan["spend_budget"], plan["spend_actual_mtd"], plan["spend_projected"],
+            ytd["income_actual"], ytd["income_target"],
+            ytd["gross_sales_actual"], ytd["gross_sales_target"],
+            ytd["spend_actual"], ytd["spend_budget"],
+            trend["projected_annual_income"], trend["projected_annual_gross_sales"], trend["projected_annual_spend"],
+        ]
+        ws.append_row(row)
+        print(f"Appended row to Google Sheet '{HISTORY_SHEET_NAME}' tab.")
+    except Exception as e:
+        print(f"Google Sheets log failed (non-fatal, rest of the run is unaffected): {e}")
+
 print("Done.")
