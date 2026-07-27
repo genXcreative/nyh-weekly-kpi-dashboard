@@ -37,6 +37,9 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Install Playwright Chromium (for PDF export)
+        run: python -m playwright install --with-deps chromium
+
       - name: Run weekly KPI report
         env:
           SHOPIFY_STORE_DOMAIN: ${{ secrets.SHOPIFY_STORE_DOMAIN }}
@@ -51,13 +54,19 @@ jobs:
           REPORT_AS_OF_DATE: ${{ github.event.inputs.as_of_date }}
           GOOGLE_SHEETS_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SHEETS_SERVICE_ACCOUNT_JSON }}
           GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+          EMAIL_SMTP_HOST: ${{ secrets.EMAIL_SMTP_HOST }}
+          EMAIL_SMTP_PORT: ${{ secrets.EMAIL_SMTP_PORT }}
+          EMAIL_FROM_ADDRESS: ${{ secrets.EMAIL_FROM_ADDRESS }}
+          EMAIL_APP_PASSWORD: ${{ secrets.EMAIL_APP_PASSWORD }}
+          EMAIL_RECIPIENTS: ${{ secrets.EMAIL_RECIPIENTS }}
+          REPORT_LIVE_URL: ${{ secrets.REPORT_LIVE_URL }}
         run: python weekly_kpi_report.py
 
       - name: Commit and push updated report
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add index.html history/ data/
+          git add index.html history/ data/ latest_report.pdf
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
