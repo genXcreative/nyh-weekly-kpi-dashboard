@@ -8,7 +8,16 @@ on:
     # in Pacific time regardless of what UTC hour it actually runs at, so this only
     # needs to land comfortably within Monday Pacific - it does not need to be exact.
     - cron: '0 14 * * 1'
-  workflow_dispatch: {}   # adds a manual "Run workflow" button on the Actions tab, for testing
+  workflow_dispatch:
+    inputs:
+      as_of_date:
+        description: >
+          Optional: run the report as if this were "today" (format YYYY-MM-DD).
+          Shifts prior-7-days, MTD, YTD, and trend all consistently to this date —
+          useful for backfilling a missed week or checking a past week's numbers.
+          Leave blank for a normal current-week run.
+        required: false
+        default: ''
 
 permissions:
   contents: write   # needed so the job can commit index.html back to this repo
@@ -39,13 +48,16 @@ jobs:
           GOOGLE_ADS_REFRESH_TOKEN: ${{ secrets.GOOGLE_ADS_REFRESH_TOKEN }}
           GOOGLE_ADS_LOGIN_CUSTOMER_ID: ${{ secrets.GOOGLE_ADS_LOGIN_CUSTOMER_ID }}
           GOOGLE_ADS_CUSTOMER_ID: ${{ secrets.GOOGLE_ADS_CUSTOMER_ID }}
+          REPORT_AS_OF_DATE: ${{ github.event.inputs.as_of_date }}
+          GOOGLE_SHEETS_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SHEETS_SERVICE_ACCOUNT_JSON }}
+          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
         run: python weekly_kpi_report.py
 
       - name: Commit and push updated report
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add index.html data/
+          git add index.html history/ data/
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
