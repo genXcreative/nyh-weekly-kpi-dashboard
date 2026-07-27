@@ -128,12 +128,10 @@
           <th>Month</th>
           <th>Net Sales Target</th>
           <th>Net Sales Actual</th>
-			<th>Net Sales Projected</th>
           <th>Δ (Net)</th>
           <th>Net Result</th>
           <th>Gross Sales Target</th>
           <th>Gross Sales Actual</th>
-			<th>Gross Sales Projected</th>
           <th>Δ (Gross)</th>
           <th>Google Spend Budget</th>
           <th>Google Spend Actual</th>
@@ -375,16 +373,10 @@ tbody.innerHTML = REPORT_DATA.monthly_history.map(m => {
     <td>${m.month}</td>
     <td>${fmtMoney(m.income_target)}</td>
     <td>${fmtMoney(m.income_actual)}</td>
-
-	<td>${fmtMoney(m.net_income_projected)}</td>
-
     <td>${deltaCell(m.income_delta)}</td>
     <td>${incomePill}</td>
     <td>${fmtMoney(m.gross_sales_target)}</td>
     <td>${fmtMoney(m.gross_sales_actual)}</td>
-
-	<td>${fmtMoney(m.gross_sales_projected)}</td>
-
     <td>${deltaCell(m.gross_sales_delta)}</td>
     <td>${fmtMoney(m.spend_budget)}</td>
     <td>${fmtMoney(m.spend_actual)}</td>
