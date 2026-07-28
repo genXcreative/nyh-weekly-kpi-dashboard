@@ -1,6 +1,6 @@
 {
   "store": "New York Hardware, Inc",
-  "generated_at": "2026-07-28 00:05",
+  "generated_at": "2026-07-28 00:38",
   "last7_range": "Jul 20 \u2013 Jul 26, 2026",
   "periods": {
     "last7": {
@@ -18,11 +18,11 @@
       "roi": 4.578032976848958
     },
     "mtd": {
-      "gross_sales": 698833.46,
-      "net_sales": 613533.66,
-      "spend": 124431.069048,
-      "roas": 5.616229655074497,
-      "roi": 4.9307111535248955
+      "gross_sales": 699324.7,
+      "net_sales": 614018.9,
+      "spend": 124572.285151,
+      "roas": 5.6138064670830685,
+      "roi": 4.929016909786301
     },
     "mtd_yoy": {
       "gross_sales": 446390.19,
@@ -35,23 +35,23 @@
   "yoy_deltas": {
     "last7_roas_pct": 7.472329121185695,
     "last7_roi_pct": 6.032782969378414,
-    "mtd_roas_pct": -0.03631851030145973,
-    "mtd_roi_pct": -1.5268934962068954
+    "mtd_roas_pct": -0.07944901019936006,
+    "mtd_roi_pct": -1.5607298818557909
   },
   "plan": {
     "month": "Jul-26",
     "net_income_target": 566849.73,
-    "net_income_actual_mtd": 617336.3,
+    "net_income_actual_mtd": 617821.54,
     "net_income_prorated_target": 493707.8293548387,
-    "net_income_projected": 708793.5296296297,
+    "net_income_projected": 709350.6570370371,
     "gross_sales_target": 650355.36,
-    "gross_sales_actual_mtd": 698833.46,
+    "gross_sales_actual_mtd": 699324.7,
     "gross_sales_prorated_target": 566438.5393548387,
-    "gross_sales_projected": 802364.3429629629,
+    "gross_sales_projected": 802928.3592592592,
     "spend_budget": 113369.95,
-    "spend_actual_mtd": 124431.069048,
+    "spend_actual_mtd": 124572.285151,
     "spend_prorated_budget": 98741.5693548387,
-    "spend_projected": 142865.30149955556
+    "spend_projected": 143027.4385067037
   },
   "monthly_history": [
     {
@@ -159,18 +159,18 @@
     {
       "month": "Jul-26",
       "income_target": 566849.73,
-      "income_actual": 617336.3,
-      "income_projected": 708793.5296296297,
-      "income_delta_basis": 708793.53,
-      "income_delta": 141943.8,
+      "income_actual": 617821.54,
+      "income_projected": 709350.6570370371,
+      "income_delta_basis": 709350.66,
+      "income_delta": 142500.93,
       "gross_sales_target": 650355.36,
-      "gross_sales_actual": 698833.46,
-      "gross_sales_projected": 802364.3429629629,
-      "gross_sales_delta_basis": 802364.34,
-      "gross_sales_delta": 152008.98,
+      "gross_sales_actual": 699324.7,
+      "gross_sales_projected": 802928.3592592592,
+      "gross_sales_delta_basis": 802928.36,
+      "gross_sales_delta": 152573.0,
       "spend_budget": 113369.95,
-      "spend_actual": 124431.069048,
-      "spend_projected": 142865.30149955556,
+      "spend_actual": 124572.285151,
+      "spend_projected": 143027.4385067037,
       "is_current": true
     },
     {
@@ -261,28 +261,28 @@
   ],
   "totals": {
     "income_target": 6542994.64,
-    "income_actual": 3953104.49,
+    "income_actual": 3953589.73,
     "gross_sales_target": 7506877.76,
-    "gross_sales_actual": 4408062.99,
+    "gross_sales_actual": 4408554.23,
     "spend_budget": 1308598.94,
-    "spend_actual": 690353.99,
-    "roas": 6.385221283359281,
-    "income_delta": -2589890.15,
-    "gross_sales_delta": -3098814.77,
+    "spend_actual": 690495.2,
+    "roas": 6.384626902547622,
+    "income_delta": -2589404.91,
+    "gross_sales_delta": -3098323.53,
     "income_status": "ontrack",
     "spend_status": "ontrack"
   },
   "ytd": {
     "label": "YTD (Jan 1 \u2013 Jul 27)",
     "income_target": 3530035.51,
-    "income_actual": 3953104.49,
-    "income_delta": 423068.98,
+    "income_actual": 3953589.73,
+    "income_delta": 423554.22,
     "income_status": "hit",
     "gross_sales_target": 4050063.7,
-    "gross_sales_actual": 4408062.99,
-    "gross_sales_delta": 357999.29,
+    "gross_sales_actual": 4408554.23,
+    "gross_sales_delta": 358490.53,
     "spend_budget": 706007.11,
-    "spend_actual": 690353.99,
+    "spend_actual": 690495.2,
     "spend_status": "hit",
     "roas": 6.385
   },
@@ -323,7 +323,7 @@
       2101899.37,
       2782841.19,
       3335768.19,
-      3953104.49,
+      3953589.73,
       null,
       null,
       null,
@@ -337,12 +337,12 @@
       null,
       null,
       null,
-      4055320.09,
-      4711046.96,
-      5251586.84,
-      5874945.93,
-      6669890.27,
-      7356393.52
+      4055834.03,
+      4711650.29,
+      5252263.86,
+      5875707.93,
+      6670760.64,
+      7357357.47
     ],
     "cum_actual_income_ly": [
       159926.2,
@@ -379,7 +379,7 @@
       348733.51,
       463673.78,
       565922.92,
-      690353.99,
+      690495.2,
       null,
       null,
       null,
@@ -393,12 +393,12 @@
       null,
       null,
       null,
-      708788.22,
-      823661.48,
-      918355.76,
-      1027558.69,
-      1166820.72,
-      1287085.53
+      708950.36,
+      823849.9,
+      918565.83,
+      1027793.74,
+      1167087.63,
+      1287379.96
     ],
     "cum_actual_spend_ly": [
       37398.71,
@@ -420,9 +420,9 @@
     "annual_income_ly_total": 4379406.32,
     "annual_gross_sales_ly_total": 4873176.08,
     "annual_spend_ly_total": 870802.66,
-    "projected_annual_income": 7347023.32,
-    "projected_annual_gross_sales": 8192584.25,
-    "projected_annual_spend": 1287085.53,
+    "projected_annual_income": 7348024.89,
+    "projected_annual_gross_sales": 8193608.45,
+    "projected_annual_spend": 1287379.96,
     "income_attainment_pct": 112.3,
     "gross_attainment_pct": 109.1,
     "spend_attainment_pct": 98.4,
@@ -494,7 +494,9 @@
       "Apr-26",
       "May-26",
       "Jun-26",
-      "Jul-26"
+      "Jul-26",
+      "Aug-26",
+      "Sep-26"
     ],
     "roas": [
       6.472,
@@ -503,7 +505,9 @@
       6.579,
       6.523,
       6.046,
-      5.616
+      5.614,
+      6.1,
+      6.5
     ],
     "daily_spend": [
       2863.35,
@@ -512,8 +516,11 @@
       3141.94,
       3707.75,
       3408.3,
-      4608.56
+      4613.79,
+      null,
+      null
     ],
+    "actual_count": 7,
     "annotation_start_month": "Jun-26",
     "stabilization_month": "Sep-26",
     "annotation_label": "Planned scale-up period \u2014 ROAS dip reflects deliberate pacing toward $30K/day daily revenue target, staged to protect CS capacity."
