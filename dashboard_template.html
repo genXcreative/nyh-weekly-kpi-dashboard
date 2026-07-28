@@ -30,7 +30,6 @@
   .delta-up { color: #10b981; font-weight: 600; }
   .delta-down { color: #ef4444; font-weight: 600; }
   .chart-box { background: #fff; border-radius: 10px 10px 0 0; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.08); position: relative; height: 280px; }
-  .chart-box .label { font-size: 11px; text-transform: uppercase; color: #6b7280; letter-spacing: .03em; }
   .data-table-wrap { margin-top: -1px; }
   table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 0 0 10px 10px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
   table.standalone { border-radius: 10px; }
@@ -97,24 +96,18 @@
 
   <section>
     <h2>Financial Plan — Month to Date Attainment (Net vs. Gross)</h2>
-    <p class="chart-note" style="margin-bottom: 12px;">Net Sales is the CFO/CEO view (after discounts &amp; returns). Gross Sales is the CDO/marketing view — the number True ROAS is measured against.</p>
+    <p class="chart-note" style="margin-bottom: 12px;">Net Income is the CFO/CEO view (after discounts &amp; returns). Gross Sales is the CDO/marketing view — the number True ROAS is measured against.</p>
     <div class="grid3">
       <div>
-        <div class="chart-box">
-          <div class="label">NET SALES</div>
-          <canvas id="chartNetIncomePlan"></canvas></div>
+        <div class="chart-box"><canvas id="chartNetIncomePlan"></canvas></div>
         <div class="data-table-wrap"><table id="tableNetIncomePlan"><thead></thead><tbody></tbody></table></div>
       </div>
       <div>
-        <div class="chart-box">
-          <div class="label">GROSS SALES</div>
-          <canvas id="chartGrossSalesPlan"></canvas></div>
+        <div class="chart-box"><canvas id="chartGrossSalesPlan"></canvas></div>
         <div class="data-table-wrap"><table id="tableGrossSalesPlan"><thead></thead><tbody></tbody></table></div>
       </div>
       <div>
-        <div class="chart-box">
-          <div class="label">AD SPEND</div>
-          <canvas id="chartSpendPlan"></canvas></div>
+        <div class="chart-box"><canvas id="chartSpendPlan"></canvas></div>
         <div class="data-table-wrap"><table id="tableSpendPlan"><thead></thead><tbody></tbody></table></div>
       </div>
     </div>
@@ -126,12 +119,14 @@
       <thead>
         <tr>
           <th>Month</th>
-          <th>Net Sales Target</th>
-          <th>Net Sales Actual</th>
+          <th>Net Income Target</th>
+          <th>Net Income Actual</th>
+          <th>Net Income Projected</th>
           <th>Δ (Net)</th>
           <th>Net Result</th>
           <th>Gross Sales Target</th>
           <th>Gross Sales Actual</th>
+          <th>Gross Sales Projected</th>
           <th>Δ (Gross)</th>
           <th>Google Spend Budget</th>
           <th>Google Spend Actual</th>
@@ -145,6 +140,12 @@
   </section>
 
   <section>
+    <h2>MoM True ROAS Trend</h2>
+    <div class="chart-box" style="height: 340px;"><canvas id="chartRoasTrend"></canvas></div>
+    <p class="chart-note" id="roasTrendNote"></p>
+  </section>
+
+  <section>
     <h2>Full-Year Trend &amp; Projection</h2>
     <div class="cards" id="trendSummaryCards"></div>
     <p id="recommendation" class="recommendation"></p>
@@ -154,7 +155,7 @@
     <p class="chart-note">Prior Year Total = last year's full 12 months actual. Projected = this year's full-year projection (see cards above).</p>
     <div class="grid2" style="margin-top: 16px;">
       <div>
-        <h3 class="chart-title">Net Sales — Cumulative Actual vs. Target</h3>
+        <h3 class="chart-title">Net Income — Cumulative Actual vs. Target</h3>
         <div class="chart-box" style="height: 320px;"><canvas id="chartTrendIncome"></canvas></div>
         <p class="chart-note">Indigo solid = actual through the current month · Indigo dashed = projected pace to year-end · Gray dashed = plan target · Teal solid = last year's pace</p>
       </div>
@@ -292,7 +293,7 @@ const COLOR_TREND = '#6366f1'; // indigo-500 — distinct from actual (green/red
 barChart(document.getElementById('chartNetIncomePlan'), [plan.month], [
   { label: 'Prorated Target', backgroundColor: COLOR_TARGET, data: [plan.net_income_prorated_target] },
   { label: 'Actual MTD', backgroundColor: plan.net_income_actual_mtd >= plan.net_income_prorated_target ? '#10b981' : '#ef4444', data: [plan.net_income_actual_mtd] },
-  { label: 'Trending', backgroundColor: plan.net_income_projected >= plan.net_income_target ? '#007fff' : '#ef4444', data: [plan.net_income_projected] },
+  { label: 'Trending', backgroundColor: plan.net_income_projected >= plan.net_income_target ? '#10b981' : '#ef4444', data: [plan.net_income_projected] },
   { label: 'Full Month Target', backgroundColor: COLOR_FULL, data: [plan.net_income_target] },
 ]);
 dataTable('tableNetIncomePlan', [plan.month], [
@@ -305,7 +306,7 @@ dataTable('tableNetIncomePlan', [plan.month], [
 barChart(document.getElementById('chartGrossSalesPlan'), [plan.month], [
   { label: 'Prorated Target', backgroundColor: COLOR_TARGET, data: [plan.gross_sales_prorated_target] },
   { label: 'Actual MTD', backgroundColor: plan.gross_sales_actual_mtd >= plan.gross_sales_prorated_target ? '#10b981' : '#ef4444', data: [plan.gross_sales_actual_mtd] },
-  { label: 'Trending', backgroundColor: plan.gross_sales_projected >= plan.gross_sales_target ? '#007fff' : '#ef4444', data: [plan.gross_sales_projected] },
+  { label: 'Trending', backgroundColor: plan.gross_sales_projected >= plan.gross_sales_target ? '#10b981' : '#ef4444', data: [plan.gross_sales_projected] },
   { label: 'Full Month Target', backgroundColor: COLOR_FULL, data: [plan.gross_sales_target] },
 ]);
 dataTable('tableGrossSalesPlan', [plan.month], [
@@ -373,10 +374,12 @@ tbody.innerHTML = REPORT_DATA.monthly_history.map(m => {
     <td>${m.month}</td>
     <td>${fmtMoney(m.income_target)}</td>
     <td>${fmtMoney(m.income_actual)}</td>
+    <td>${fmtMoney(m.income_delta_basis)}</td>
     <td>${deltaCell(m.income_delta)}</td>
     <td>${incomePill}</td>
     <td>${fmtMoney(m.gross_sales_target)}</td>
     <td>${fmtMoney(m.gross_sales_actual)}</td>
+    <td>${fmtMoney(m.gross_sales_delta_basis)}</td>
     <td>${deltaCell(m.gross_sales_delta)}</td>
     <td>${fmtMoney(m.spend_budget)}</td>
     <td>${fmtMoney(m.spend_actual)}</td>
@@ -402,9 +405,11 @@ document.querySelector('#monthlyTable tfoot').innerHTML = `<tr class="ytd-row">
   <td>${ytd.label}</td>
   <td>${fmtMoney(ytd.income_target)}</td>
   <td>${fmtMoney(ytd.income_actual)}</td>
+  <td>${fmtMoney(ytd.income_actual)}</td>
   <td>${deltaCell(ytd.income_delta)}</td>
   <td>${statusPill(ytd.income_status)}</td>
   <td>${fmtMoney(ytd.gross_sales_target)}</td>
+  <td>${fmtMoney(ytd.gross_sales_actual)}</td>
   <td>${fmtMoney(ytd.gross_sales_actual)}</td>
   <td>${deltaCell(ytd.gross_sales_delta)}</td>
   <td>${fmtMoney(ytd.spend_budget)}</td>
@@ -415,9 +420,11 @@ document.querySelector('#monthlyTable tfoot').innerHTML = `<tr class="ytd-row">
   <td>Total (Year)</td>
   <td>${fmtMoney(totals.income_target)}</td>
   <td>${fmtMoney(totals.income_actual)}</td>
+  <td>${fmtMoney(totals.income_actual)}</td>
   <td>${deltaCell(totals.income_delta)}</td>
   <td>${statusPill(totals.income_status)}</td>
   <td>${fmtMoney(totals.gross_sales_target)}</td>
+  <td>${fmtMoney(totals.gross_sales_actual)}</td>
   <td>${fmtMoney(totals.gross_sales_actual)}</td>
   <td>${deltaCell(totals.gross_sales_delta)}</td>
   <td>${fmtMoney(totals.spend_budget)}</td>
@@ -425,6 +432,150 @@ document.querySelector('#monthlyTable tfoot').innerHTML = `<tr class="ytd-row">
   <td>${statusPill(totals.spend_status)}</td>
   <td>${totals.roas != null ? fmtX(totals.roas) : '—'}</td>
 </tr>`;
+
+// ── MoM True ROAS trend ────────────────────────────────────────────────────────
+// Self-contained Chart.js plugin (no external annotation library) that shades
+// the "planned scale-up" period from a given month label to the right edge of
+// the chart, draws a wrapped narrative label inside the band, and optionally
+// marks a projected stabilization month with a dotted vertical line.
+function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight) {
+  const words = text.split(' ');
+  let line = '';
+  for (let n = 0; n < words.length; n++) {
+    const testLine = line + words[n] + ' ';
+    if (ctx.measureText(testLine).width > maxWidth && n > 0) {
+      ctx.fillText(line.trim(), x, y);
+      line = words[n] + ' ';
+      y += lineHeight;
+    } else {
+      line = testLine;
+    }
+  }
+  ctx.fillText(line.trim(), x, y);
+  return y;
+}
+
+function scaleUpBandPlugin(startLabel, stabilizationLabel, labelText) {
+  return {
+    id: 'scaleUpBand',
+    beforeDraw(chart) {
+      const { ctx, chartArea, scales } = chart;
+      const labels = chart.data.labels;
+      const startIdx = labels.indexOf(startLabel);
+      if (startIdx === -1 || !chartArea) return;
+      const xStart = scales.x.getPixelForValue(startIdx);
+      ctx.save();
+      ctx.fillStyle = 'rgba(99, 102, 241, 0.08)';
+      ctx.fillRect(xStart, chartArea.top, chartArea.right - xStart, chartArea.bottom - chartArea.top);
+      ctx.restore();
+
+      if (stabilizationLabel) {
+        const stabIdx = labels.indexOf(stabilizationLabel);
+        if (stabIdx !== -1) {
+          const xStab = scales.x.getPixelForValue(stabIdx);
+          ctx.save();
+          ctx.strokeStyle = '#4338ca';
+          ctx.setLineDash([4, 4]);
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(xStab, chartArea.top);
+          ctx.lineTo(xStab, chartArea.bottom);
+          ctx.stroke();
+          ctx.restore();
+          ctx.save();
+          ctx.fillStyle = '#4338ca';
+          ctx.font = '600 10px -apple-system, BlinkMacSystemFont, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('Target reached', xStab, chartArea.top - 6);
+          ctx.restore();
+        }
+      }
+    },
+    afterDraw(chart) {
+      const { ctx, chartArea, scales } = chart;
+      const labels = chart.data.labels;
+      const startIdx = labels.indexOf(startLabel);
+      if (startIdx === -1 || !chartArea || !labelText) return;
+      const xStart = scales.x.getPixelForValue(startIdx);
+      const bandWidth = chartArea.right - xStart;
+      ctx.save();
+      ctx.fillStyle = '#4338ca';
+      ctx.font = '600 11px -apple-system, BlinkMacSystemFont, sans-serif';
+      ctx.textAlign = 'left';
+      wrapCanvasText(ctx, labelText, xStart + 10, chartArea.top + 18, Math.max(bandWidth - 20, 90), 14);
+      ctx.restore();
+    },
+  };
+}
+
+const rt = REPORT_DATA.roas_trend;
+if (rt && rt.months && rt.months.length) {
+  new Chart(document.getElementById('chartRoasTrend'), {
+    type: 'line',
+    data: {
+      labels: rt.months,
+      datasets: [
+        {
+          label: 'True ROAS',
+          data: rt.roas,
+          borderColor: COLOR_GROSS,
+          backgroundColor: COLOR_GROSS,
+          yAxisID: 'y',
+          tension: 0.3,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+        },
+        {
+          label: 'Daily Ad Spend Pace',
+          data: rt.daily_spend,
+          borderColor: COLOR_SPEND,
+          backgroundColor: COLOR_SPEND,
+          yAxisID: 'y1',
+          borderDash: [5, 3],
+          tension: 0.3,
+          pointRadius: 3,
+          pointHoverRadius: 5,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom' },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => ctx.dataset.yAxisID === 'y'
+              ? `True ROAS: ${ctx.parsed.y.toFixed(2)}x`
+              : `Daily Ad Spend Pace: ${fmtMoney(ctx.parsed.y)}`,
+          },
+        },
+      },
+      scales: {
+        y: {
+          type: 'linear',
+          position: 'left',
+          suggestedMin: 5.5,
+          suggestedMax: 7.5,
+          title: { display: true, text: 'True ROAS (x)' },
+          ticks: { callback: (v) => v.toFixed(1) + 'x' },
+        },
+        y1: {
+          type: 'linear',
+          position: 'right',
+          beginAtZero: true,
+          title: { display: true, text: 'Daily Ad Spend Pace' },
+          ticks: { callback: (v) => fmtMoney(v) },
+          grid: { drawOnChartArea: false },
+        },
+      },
+    },
+    plugins: [scaleUpBandPlugin(rt.annotation_start_month, rt.stabilization_month, rt.annotation_label)],
+  });
+  document.getElementById('roasTrendNote').textContent =
+    'Shaded band = ' + (rt.annotation_label || '') +
+    (rt.stabilization_month ? ` Dotted line marks the projected stabilization month (${rt.stabilization_month}).` : '');
+}
 
 // ── Full-year trend & projection ──────────────────────────────────────────────
 const t = REPORT_DATA.trend;
@@ -435,7 +586,7 @@ const spendDelta = t.projected_annual_spend != null
   ? (t.projected_annual_spend - t.annual_spend_budget) : null;
 
 document.getElementById('trendSummaryCards').innerHTML = [
-  cardHTML('Projected Annual Net Sales', fmtMoney(t.projected_annual_income),
+  cardHTML('Projected Annual Net Income', fmtMoney(t.projected_annual_income),
     `vs. target ${fmtMoney(t.annual_income_target)}`,
     t.income_attainment_pct != null ? t.income_attainment_pct - 100 : null,
     (t.income_attainment_pct || 0) >= 100 ? 'good' : (t.income_attainment_pct || 0) >= 90 ? 'warn' : 'bad'),
@@ -456,7 +607,7 @@ function yoyDelta(projected, lyTotal) {
 }
 
 dataTable('tableTrendYoy', ['Prior Year Total', 'Projected This Year', 'Δ vs. Last Year', '% vs. Last Year'], [
-  { label: 'Net Sales', values: [
+  { label: 'Net Income', values: [
       fmtMoney(t.annual_income_ly_total), fmtMoney(t.projected_annual_income),
       deltaCell(yoyDelta(t.projected_annual_income, t.annual_income_ly_total)),
       fmtPct(pctDelta(t.projected_annual_income, t.annual_income_ly_total)),

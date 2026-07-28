@@ -366,10 +366,16 @@ for label in INCOME_TARGET:
         "income_target": INCOME_TARGET[label],
         "income_actual": income_actual,
         "income_projected": income_projected,
+        # The value the Δ (Net) column is actually measured against: the
+        # extrapolated full-month pace for the current (open) month, or just
+        # the realized actual for any closed month — shown as its own column
+        # so the delta is never a mystery number.
+        "income_delta_basis": round(income_basis_for_delta, 2) if income_basis_for_delta is not None else None,
         "income_delta": round(income_delta, 2) if income_delta is not None else None,
         "gross_sales_target": GROSS_SALES_TARGET[label],
         "gross_sales_actual": gross_actual,
         "gross_sales_projected": gross_projected,
+        "gross_sales_delta_basis": round(gross_basis_for_delta, 2) if gross_basis_for_delta is not None else None,
         "gross_sales_delta": round(gross_sales_delta, 2) if gross_sales_delta is not None else None,
         "spend_budget": GOOGLE_SPEND_BUDGET[label],
         "spend_actual": spend_actual,
@@ -599,6 +605,43 @@ scaling = {
     "targets": scaling_targets,
 }
 
+# ─────────────────────────────────────────────────────────────────────────────
+# MoM True ROAS trend — re-visualizes the same monthly_history data already in
+# the Monthly Hits & Misses table as a line chart, so the reader sees the raw
+# numbers first, then immediately sees the trend. Only includes months with
+# actual data so far this year (naturally grows each month, nothing to update).
+#
+# ROAS_SCALEUP_START_MONTH / ROAS_SCALEUP_STABILIZATION_MONTH are a narrative
+# annotation per the CFO's spec: they mark the deliberate ad-spend scale-up
+# toward the $30K/day daily revenue target, so a post-peak ROAS dip reads as
+# planned pacing rather than eroding efficiency. Update
+# ROAS_SCALEUP_STABILIZATION_MONTH (e.g. "Oct-26") once a flattening point is
+# projected — leave it as None until then, and the chart just won't mark one.
+# ─────────────────────────────────────────────────────────────────────────────
+ROAS_SCALEUP_START_MONTH = "Jun-26"
+ROAS_SCALEUP_STABILIZATION_MONTH = "Sep-26"
+
+roas_trend_months, roas_trend_roas, roas_trend_daily_spend = [], [], []
+for m in monthly_history:
+    if m["gross_sales_actual"] is None or not m["spend_actual"]:
+        continue
+    roas_trend_months.append(m["month"])
+    roas_trend_roas.append(round(m["gross_sales_actual"] / m["spend_actual"], 3))
+    _dt = datetime.strptime(m["month"], "%b-%y")
+    _days_in_full_month = calendar.monthrange(_dt.year, _dt.month)[1]
+    _days_elapsed = DAY_OF_MONTH if m["is_current"] else _days_in_full_month
+    roas_trend_daily_spend.append(round(m["spend_actual"] / _days_elapsed, 2) if _days_elapsed else None)
+
+roas_trend = {
+    "months": roas_trend_months,
+    "roas": roas_trend_roas,
+    "daily_spend": roas_trend_daily_spend,
+    "annotation_start_month": ROAS_SCALEUP_START_MONTH,
+    "stabilization_month": ROAS_SCALEUP_STABILIZATION_MONTH,
+    "annotation_label": ("Planned scale-up period — ROAS dip reflects deliberate pacing toward "
+                         "$30K/day daily revenue target, staged to protect CS capacity."),
+}
+
 report_data = {
     "store": "New York Hardware, Inc",
     "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M"),
@@ -614,6 +657,7 @@ report_data = {
     "ytd": ytd,
     "trend": trend,
     "scaling": scaling,
+    "roas_trend": roas_trend,
 }
 
 print("Report data built.")
@@ -757,8 +801,8 @@ else:
         # Tab 8: Monthly Hits & Misses (+ YTD row + Totals/Full-Year row) — status
         # labels replicate dashboard_template.html's incomePill/spendPill logic exactly.
         monthly_header = [
-            "Month", "Net Income Target", "Net Income Actual", "Net Result",
-            "Gross Sales Target", "Gross Sales Actual", "Δ vs. Target (Gross)",
+            "Month", "Net Income Target", "Net Income Actual", "Net Income Projected", "Δ (Net)", "Net Result",
+            "Gross Sales Target", "Gross Sales Actual", "Gross Sales Projected", "Δ (Gross)",
             "Ad Spend Budget", "Ad Spend Actual", "Spend Result", "True ROAS",
         ]
         monthly_rows = []
@@ -780,26 +824,34 @@ else:
             monthly_roas = (m["gross_sales_actual"] / m["spend_actual"]) if (m["gross_sales_actual"] is not None and m["spend_actual"]) else None
 
             monthly_rows.append([
-                m["month"], m["income_target"], m["income_actual"], income_result,
-                m["gross_sales_target"], m["gross_sales_actual"], m["gross_sales_delta"],
+                m["month"], m["income_target"], m["income_actual"], m["income_delta_basis"], m["income_delta"], income_result,
+                m["gross_sales_target"], m["gross_sales_actual"], m["gross_sales_delta_basis"], m["gross_sales_delta"],
                 m["spend_budget"], m["spend_actual"], spend_result,
                 round(monthly_roas, 3) if monthly_roas is not None else None,
             ])
+        # YTD/Totals rows already represent a fully realized (summed) figure, so the
+        # "Projected" column is just a passthrough of the actual — nothing left to extrapolate.
         monthly_rows.append([
-            ytd["label"], ytd["income_target"], ytd["income_actual"], ytd["income_status"].upper(),
-            ytd["gross_sales_target"], ytd["gross_sales_actual"], ytd["gross_sales_delta"],
+            ytd["label"], ytd["income_target"], ytd["income_actual"], ytd["income_actual"], ytd["income_delta"], ytd["income_status"].upper(),
+            ytd["gross_sales_target"], ytd["gross_sales_actual"], ytd["gross_sales_actual"], ytd["gross_sales_delta"],
             ytd["spend_budget"], ytd["spend_actual"], ytd["spend_status"].upper(),
             ytd["roas"],
         ])
         monthly_rows.append([
-            "Total (Full Year)", totals["income_target"], totals["income_actual"], totals["income_status"].upper(),
-            totals["gross_sales_target"], totals["gross_sales_actual"], totals["gross_sales_delta"],
+            "Total (Full Year)", totals["income_target"], totals["income_actual"], totals["income_actual"], totals["income_delta"], totals["income_status"].upper(),
+            totals["gross_sales_target"], totals["gross_sales_actual"], totals["gross_sales_actual"], totals["gross_sales_delta"],
             totals["spend_budget"], totals["spend_actual"], totals["spend_status"].upper(),
             round(totals["roas"], 3) if totals["roas"] is not None else None,
         ])
         _write_sheet_table(gc, GOOGLE_SHEET_ID, "Monthly Hits & Misses", monthly_header, monthly_rows)
 
-        # Tab 9: Full-Year Trend — Prior Year Total vs. Projected
+        # Tab 9: MoM True ROAS Trend (the same series behind the new line chart)
+        _write_sheet_table(gc, GOOGLE_SHEET_ID, "MoM ROAS Trend", ["Month", "True ROAS", "Daily Ad Spend Pace"], [
+            [roas_trend["months"][i], roas_trend["roas"][i], roas_trend["daily_spend"][i]]
+            for i in range(len(roas_trend["months"]))
+        ])
+
+        # Tab 10: Full-Year Trend — Prior Year Total vs. Projected
         def _yoy_delta_val(projected, ly_total):
             return round(projected - ly_total, 2) if (projected is not None and ly_total is not None) else None
         _write_sheet_table(gc, GOOGLE_SHEET_ID, "Trend - PY vs Projected", ["Metric", "Prior Year Total", "Projected This Year", "Δ vs. Last Year", "% vs. Last Year"], [
@@ -814,7 +866,7 @@ else:
              _yoy_pct(trend["projected_annual_spend"], trend["annual_spend_ly_total"])],
         ])
 
-        # Tabs 10-11: Trend detail — the actual cumulative series behind the two line charts
+        # Tabs 11-12: Trend detail — the actual cumulative series behind the two line charts
         _write_sheet_table(gc, GOOGLE_SHEET_ID, "Trend Detail - Income", ["Month", "Cumulative Target", "Cumulative Actual", "Cumulative Projected", "Cumulative LY Actual"], [
             [trend["months"][i], trend["cum_target_income"][i], trend["cum_actual_income"][i],
              trend["cum_projected_income"][i], trend["cum_actual_income_ly"][i]]
@@ -826,7 +878,7 @@ else:
             for i in range(len(trend["months"]))
         ])
 
-        # Tab 12: Scaling Opportunities
+        # Tab 13: Scaling Opportunities
         scaling_rows = [[
             "Current (7-day avg)", None, scaling["current_daily_spend"], None,
             scaling["current_daily_net"], round(scaling["current_daily_spend"] * 30, 2) if scaling["current_daily_spend"] is not None else None,
@@ -838,7 +890,7 @@ else:
             ])
         _write_sheet_table(gc, GOOGLE_SHEET_ID, "Scaling Opportunities", ["Scenario", "Daily Revenue Target", "Required Daily Spend", "Δ Spend vs. Current", "Implied Daily Net Sales", "Monthly Spend Equivalent"], scaling_rows)
 
-        print("Google Sheets export complete (12 tabs written).")
+        print("Google Sheets export complete (13 tabs written).")
     except Exception as e:
         print(f"Google Sheets export failed (non-fatal, rest of the run is unaffected): {e}")
 
