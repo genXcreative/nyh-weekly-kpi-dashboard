@@ -522,8 +522,14 @@ if (rt && rt.months && rt.months.length) {
           backgroundColor: COLOR_GROSS,
           yAxisID: 'y',
           tension: 0.3,
-          pointRadius: 4,
+          pointRadius: (ctx) => ctx.dataIndex >= rt.actual_count ? 3 : 4,
           pointHoverRadius: 6,
+          pointStyle: (ctx) => ctx.dataIndex >= rt.actual_count ? 'rectRot' : 'circle',
+          // Dotted from the last actual month onward, so the projected
+          // (manually entered) months read as forward-looking, not measured.
+          segment: {
+            borderDash: (ctx) => (ctx.p0DataIndex >= rt.actual_count - 1) ? [6, 4] : undefined,
+          },
         },
         {
           label: 'Daily Ad Spend Pace',
@@ -555,8 +561,8 @@ if (rt && rt.months && rt.months.length) {
         y: {
           type: 'linear',
           position: 'left',
-          suggestedMin: 5.5,
-          suggestedMax: 7.5,
+          suggestedMin: 4,
+          suggestedMax: 8,
           title: { display: true, text: 'True ROAS (x)' },
           ticks: { callback: (v) => v.toFixed(1) + 'x' },
         },
@@ -572,9 +578,11 @@ if (rt && rt.months && rt.months.length) {
     },
     plugins: [scaleUpBandPlugin(rt.annotation_start_month, rt.stabilization_month, rt.annotation_label)],
   });
+  const hasProjectedMonths = rt.actual_count != null && rt.actual_count < rt.months.length;
   document.getElementById('roasTrendNote').textContent =
     'Shaded band = ' + (rt.annotation_label || '') +
-    (rt.stabilization_month ? ` Dotted line marks the projected stabilization month (${rt.stabilization_month}).` : '');
+    (hasProjectedMonths ? ` Dotted portion of the line (from ${rt.months[rt.actual_count]} onward) reflects forward-looking projections, not measured actuals.` : '') +
+    (rt.stabilization_month ? ` Vertical dotted line marks the projected stabilization month (${rt.stabilization_month}).` : '');
 }
 
 // ── Full-year trend & projection ──────────────────────────────────────────────

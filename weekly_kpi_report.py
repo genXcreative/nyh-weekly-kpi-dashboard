@@ -621,6 +621,18 @@ scaling = {
 ROAS_SCALEUP_START_MONTH = "Jun-26"
 ROAS_SCALEUP_STABILIZATION_MONTH = "Sep-26"
 
+# Manually entered forward-looking ROAS projections — not derived from actual
+# spend/sales data, just business projections plugged in ahead of the real
+# months landing. Rendered as a dotted continuation of the True ROAS line so
+# they're visually distinct from measured actuals. A month is automatically
+# dropped from this list once real data exists for it (no manual cleanup
+# needed — just leave old entries here, or replace the values as projections
+# get revised).
+ROAS_TREND_MANUAL_PROJECTIONS = {
+    "Aug-26": 6.1,
+    "Sep-26": 6.5,
+}
+
 roas_trend_months, roas_trend_roas, roas_trend_daily_spend = [], [], []
 for m in monthly_history:
     if m["gross_sales_actual"] is None or not m["spend_actual"]:
@@ -632,10 +644,20 @@ for m in monthly_history:
     _days_elapsed = DAY_OF_MONTH if m["is_current"] else _days_in_full_month
     roas_trend_daily_spend.append(round(m["spend_actual"] / _days_elapsed, 2) if _days_elapsed else None)
 
+roas_trend_actual_count = len(roas_trend_months)
+
+for _proj_month, _proj_roas in ROAS_TREND_MANUAL_PROJECTIONS.items():
+    if _proj_month in roas_trend_months:
+        continue  # real data already landed for this month — don't double up
+    roas_trend_months.append(_proj_month)
+    roas_trend_roas.append(_proj_roas)
+    roas_trend_daily_spend.append(None)
+
 roas_trend = {
     "months": roas_trend_months,
     "roas": roas_trend_roas,
     "daily_spend": roas_trend_daily_spend,
+    "actual_count": roas_trend_actual_count,
     "annotation_start_month": ROAS_SCALEUP_START_MONTH,
     "stabilization_month": ROAS_SCALEUP_STABILIZATION_MONTH,
     "annotation_label": ("Planned scale-up period — ROAS dip reflects deliberate pacing toward "
