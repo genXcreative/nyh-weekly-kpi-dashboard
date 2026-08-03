@@ -1,184 +1,15 @@
-
-/
-Claude finished the response
-
-Updated tasks, read 2 files, ran a command
-Updated tasks, read 2 files, ran a command
-Now let me view the Monthly Hits & Misses JS rendering block in full (table body, YTD row, totals row) and the trend section that follows it.
-
-
-Ran 2 commands, edited 2 files, read a file
-Ran 2 commands, edited 2 files, read a file
-Now the YTD and Totals footer rows:
-
-
-Edited a file
-Edited a file
-Now updating the Python side: adding the income_delta_basis/gross_sales_delta_basis fields and the Sheets export columns.
-
-
-Edited a file
-Edited a file
-Now updating the Sheets "Monthly Hits & Misses" tab to match the new column layout:
-
-
-Ran 3 commands, updated tasks, loaded tools
-Ran 3 commands, updated tasks, loaded tools
-Now inserting the roas_trend computation right before report_data = {:
-
-
-Edited 2 files, searched code
-Edited 2 files, searched code
-Now adding the new HTML section for the chart, right after the Monthly Hits & Misses table (line 140):
-
-
-Edited 2 files, searched code
-Edited 2 files, searched code
-Now adding a matching Sheets tab for the ROAS trend data, keeping the full-dump export comprehensive:
-
-
-Edited 4 files, ran 2 commands
-Edited 4 files, ran 2 commands
-Now let's verify everything: Python syntax/mocked execution, and the JS chart logic via Node.js.
-
-
-Ran a command
-Ran a command
-Good — 13 tabs written as expected (the "extra" is just the new tab my old assertion list didn't know about). Now let's check the Monthly Hits & Misses row data and verify the JS rendering logic with Node.js.
-
-
-Ran 3 commands
-Ran 3 commands
-Now propagating the updated files to the deployment folders and cleaning up:
-
-
-Read 2 files, updated tasks, ran a command
-Read 2 files, updated tasks, ran a command
-Both changes are done and verified (mocked run + JS execution test):
-
-Monthly Hits & Misses now has "Net Income Projected" before Δ (Net), and "Gross Sales Projected" before Δ (Gross) — for the current month these show the extrapolated full-month pace (the actual basis for the delta); for closed months they just equal the actual, since nothing's left to project. Mirrored in the Sheets export too.
-
-MoM True ROAS Trend — new line chart panel directly under that table: True ROAS (left axis, ~5.5x–7.5x) plus daily ad spend pace as a second line (right axis), a shaded indigo band from March through the current month with the CFO's exact narrative label wrapped inside it, and a dotted vertical marker for a stabilization month whenever you have one. Built with Chart.js's native plugin API rather than pulling in a third annotation library, so no new dependency.
-
-One thing worth deciding: I left ROAS_SCALEUP_STABILIZATION_MONTH = None near the top of weekly_kpi_report.py (search for that name) — set it to a month label like "Oct-26" whenever you or the CFO land on a projected flattening point, and the dotted "target reached" line will appear automatically. Also added a "MoM ROAS Trend" tab to the Sheets export for consistency with the rest of the dump.
-
-
-C:\Users\genxc\OneDrive\Projects\NY Hardware\code\Python\Google-Ads\github_actions_migration\weekly_kpi_report.py
- 
-
-C:\Users\genxc\OneDrive\Projects\NY Hardware\code\Python\Google-Ads\github_actions_migration\dashboard_template.html
-Code 
-on the MoM True ROAS Trend, make the True ROAS (x) min 4 and the max 8,  Then add Aug-26 with a ROAS of 6.1 and Sep-26 with a ROAS of 6.5.  The line for these months should be dotted to show they are projected.
-
-
-Read a file, edited a file
-Read a file, edited a file
-Now updating the JS chart: y-axis range 4–8, and dotted segment styling for the projected months.
-
-
-Edited 2 files
-Edited 2 files
-Now updating the note text to mention the projected portion of the line:
-
-
-Edited a file
-Edited a file
-Now let's verify with the full test suite again:
-
-
-Ran a command
-Ran a command
-Data confirms correct: Aug-26 (6.1) and Sep-26 (6.5) appended with null daily spend, actual_count: 7 marking where projections start. Now verifying the JS chart rendering with the segment-dash logic:
-
-
-Ran 2 commands
-Ran 2 commands
-Exactly as intended: the Jul→Aug and Aug→Sep segments render dotted, actual-month points stay circles, and projected points show as a distinct diamond marker. Deploying the verified files:
-
-
-Read 2 files, ran a command
-Read 2 files, ran a command
-Both changes are verified and deployed: the ROAS axis now runs 4x–8x, and Aug-26 (6.1x) / Sep-26 (6.5x) are appended with a dotted line segment from Jul onward plus a diamond marker to visually flag them as projections rather than actuals. The values are set in a small dict near the top of weekly_kpi_report.py (ROAS_TREND_MANUAL_PROJECTIONS) — each month drops out of that projection list automatically once real data lands for it, so no cleanup needed later, just update the values if the projection changes.
-
-
-C:\Users\genxc\OneDrive\Projects\NY Hardware\code\Python\Google-Ads\github_actions_migration\weekly_kpi_report.py
- 
-
-C:\Users\genxc\OneDrive\Projects\NY Hardware\code\Python\Google-Ads\github_actions_migration\dashboard_template.html
-Code 
-For the daily ad spend pace on the MoM True ROAS Trend
-, make the red line solid for historic value and dotted for estimated spend
-
-
-Read a file, edited a file
-Read a file, edited a file
-Now updating the JS chart to apply the same solid/dotted segment styling to the red daily spend line:
-
-
-Read 2 files, edited 2 files, ran 2 commands
-Read 2 files, edited 2 files, ran 2 commands
-Sandbox got reset between turns. Let me rebuild the mock test harness quickly.
-
-
-Ran 2 commands
-Ran 2 commands
-With test spend values injected, both lines now populate for Aug/Sep. Let's confirm the JS segment-dash logic on the spend dataset:
-
-
-Ran a command
-Ran a command
-Confirmed correct — solid through Jul, dotted from Jul→Aug onward, for both lines. Now deploying the real (unmodified) version with the placeholder dict left empty for you to fill in:
-
-
-Ran 2 commands, read 2 files
-Ran 2 commands, read 2 files
-Files are confirmed present via the sandbox (just a transient bridge hiccup on the Read tool). Presenting them directly:
-
-
-Read a file
-Read a file
-The Google-Ads folder connection seems to have dropped on the app side (the files exist in the sandbox mount, but the app itself no longer recognizes that folder as connected — this is the same intermittent issue from earlier). Rather than fight that further, here are the same files from my working folder, which is always reachable:
-
-
-Read 4 files
-Read 4 files
-Both files are now shared — needed the full absolute path this time. The solid/dotted split is live on both lines: measured months stay solid, and once you plug in estimated Aug/Sep daily spend numbers into ROAS_TREND_MANUAL_SPEND_PROJECTIONS (right next to the ROAS projections), that portion of the red line will render dotted automatically, matching the ROAS line's treatment.
-
-One thing I couldn't do for you: I left that dict empty since you didn't give me the estimated spend figures for Aug/Sep — what daily spend are you and the CFO projecting for those two months? Once I have those two numbers I can plug them in directly so the line shows real data instead of a gap.
-
-
-C:\Users\genxc\AppData\Roaming\Claude\local-agent-mode-sessions\5a4c1791-312d-41db-ae14-00ee1eefe51d\4bd4b24b-21b8-4cf1-a85e-be6a447006c2\local_cd7de97a-1a90-4ee1-9808-c1ac7142c60f\outputs\weekly_kpi_report.py
- 
-
-C:\Users\genxc\AppData\Roaming\Claude\local-agent-mode-sessions\5a4c1791-312d-41db-ae14-00ee1eefe51d\4bd4b24b-21b8-4cf1-a85e-be6a447006c2\local_cd7de97a-1a90-4ee1-9808-c1ac7142c60f\outputs\dashboard_template.html
-Code 
-Aug estimated at 6.1 and Sept estimated at 6.5
-
-
-Thought process
-Thought process
-Just to confirm before I put these on the CFO-facing chart: 6.1 and 6.5 already match the True ROAS projections you gave earlier for Aug/Sep. Did you mean the daily ad spend pace (in dollars) should be $6,100 and $6,500, or were you re-confirming the ROAS numbers rather than giving new spend figures?
-Those were the ROAS numbers
-Got it — no changes needed then. The daily spend line will stay solid through July and just leave Aug/Sep blank until you have actual dollar figures to give me. Whenever you have them, just send over the two numbers (e.g. "$5,200 and $4,900") and I'll drop them into ROAS_TREND_MANUAL_SPEND_PROJECTIONS so that portion of the red line renders dotted.
-
-
-
-
-
-Claude is AI and can make mistakes. Please double-check responses.
-Weekly kpi report · PY
 """
 NYH Weekly Ecommerce KPI Report — standalone script (GitHub Actions version)
- 
+
 Ported from nyh_weekly_kpi_report.ipynb (Cells 4-9). Pulls fresh Google Ads spend +
 Shopify sales data, computes True ROAS / ROI + financial-plan attainment, and renders
 the self-contained HTML dashboard to index.html at the repo root (published via
 GitHub Pages) plus a dated JSON snapshot under data/ (for auditing / history).
- 
+
 Credentials come from environment variables (GitHub Actions Secrets), not a .env file
 or google-ads.yaml — there is no Google Drive step in this version; that was Colab-only
 plumbing to get credentials into an interactive session.
- 
+
 Required environment variables:
     SHOPIFY_STORE_DOMAIN           e.g. new-york-hardware-online.myshopify.com
     SHOPIFY_CLIENT_ID
@@ -189,7 +20,7 @@ Required environment variables:
     GOOGLE_ADS_REFRESH_TOKEN
     GOOGLE_ADS_LOGIN_CUSTOMER_ID   the MCC / manager account id (digits only, no dashes)
     GOOGLE_ADS_CUSTOMER_ID         the target account id being reported on
- 
+
 Optional environment variables:
     REPORT_AS_OF_DATE               ISO date (YYYY-MM-DD). Runs the whole report as if
                                      this were "today" — every window (prior 7 days, MTD,
@@ -211,14 +42,14 @@ import os
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
- 
+
 import requests
 from google.ads.googleads.client import GoogleAdsClient
 from google.ads.googleads.errors import GoogleAdsException
 from shopifyql import ShopifyQLClient
- 
+
 SCRIPT_DIR = Path(__file__).resolve().parent
- 
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Cell 4 equivalent — date windows, anchored to Pacific time
 #
@@ -235,14 +66,14 @@ if _as_of_override:
     print(f"REPORT_AS_OF_DATE set — running as if today were {TODAY} (real today is {datetime.now(PACIFIC).date()}).")
 else:
     TODAY = datetime.now(PACIFIC).date()
- 
- 
+
+
 def prior_n_days_excluding_today(today, n):
     end = today - timedelta(days=1)
     start = end - timedelta(days=n - 1)
     return start, end
- 
- 
+
+
 def same_window_last_year(start, end):
     def shift(d):
         try:
@@ -250,24 +81,24 @@ def same_window_last_year(start, end):
         except ValueError:  # Feb 29 -> Feb 28
             return d.replace(year=d.year - 1, day=28)
     return shift(start), shift(end)
- 
- 
+
+
 LAST7_START, LAST7_END = prior_n_days_excluding_today(TODAY, 7)
 LAST7_LY_START, LAST7_LY_END = same_window_last_year(LAST7_START, LAST7_END)
- 
+
 MTD_START = TODAY.replace(day=1)
 MTD_END = TODAY
 MTD_LY_START, MTD_LY_END = same_window_last_year(MTD_START, MTD_END)
- 
+
 MONTH_LABEL = TODAY.strftime("%b-%y")
 DAYS_IN_MONTH = calendar.monthrange(TODAY.year, TODAY.month)[1]
 DAY_OF_MONTH = TODAY.day
 LAST_YEAR = TODAY.year - 1
- 
+
 print(f"Prior 7 days:      {LAST7_START} → {LAST7_END}   (LY: {LAST7_LY_START} → {LAST7_LY_END})")
 print(f"MTD:               {MTD_START} → {MTD_END}       (LY: {MTD_LY_START} → {MTD_LY_END})")
 print(f"Current month:     {MONTH_LABEL}  (day {DAY_OF_MONTH} of {DAYS_IN_MONTH})")
- 
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Cell 5 equivalent — financial plan targets (hardcoded from the P&L)
 # Update these three dicts whenever you get a revised financial plan.
@@ -277,23 +108,23 @@ INCOME_TARGET = {
     "May-26": 580020.13, "Jun-26": 592803.52, "Jul-26": 566849.73, "Aug-26": 583966.76,
     "Sep-26": 481385.37, "Oct-26": 555141.18, "Nov-26": 707948.83, "Dec-26": 611375.09,
 }
- 
+
 GROSS_SALES_TARGET = {
     "Jan-26": 513996.39, "Feb-26": 500272.49, "Mar-26": 519029.58, "Apr-26": 604728.20,
     "May-26": 665465.96, "Jun-26": 680132.54, "Jul-26": 650355.36, "Aug-26": 669993.99,
     "Sep-26": 552300.79, "Oct-26": 636921.96, "Nov-26": 812240.51, "Dec-26": 701439.99,
 }
- 
+
 GOOGLE_SPEND_BUDGET = {
     "Jan-26": 89599.85, "Feb-26": 87207.50, "Mar-26": 90477.24, "Apr-26": 105416.22,
     "May-26": 116004.03, "Jun-26": 118560.70, "Jul-26": 113369.95, "Aug-26": 116793.35,
     "Sep-26": 96277.07, "Oct-26": 111028.24, "Nov-26": 141589.77, "Dec-26": 122275.02,
 }
- 
+
 print(f"Plan loaded — {MONTH_LABEL} Net Income target: ${INCOME_TARGET[MONTH_LABEL]:,.2f} | "
       f"Gross Sales target: ${GROSS_SALES_TARGET[MONTH_LABEL]:,.2f} | "
       f"Google spend budget: ${GOOGLE_SPEND_BUDGET[MONTH_LABEL]:,.2f}")
- 
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Cell 6 equivalent — Google Ads spend
 # Uses GoogleAdsClient.load_from_env(), which reads GOOGLE_ADS_* env vars directly —
@@ -315,8 +146,8 @@ _google_ads_config = {
 client = GoogleAdsClient.load_from_dict(_google_ads_config)
 customer_id = os.getenv("GOOGLE_ADS_CUSTOMER_ID", "").replace("-", "")
 ga_service = client.get_service("GoogleAdsService")
- 
- 
+
+
 def google_spend(start: date, end: date):
     """Total Google Ads cost (all campaigns) between start and end, inclusive."""
     query = f"""
@@ -334,16 +165,16 @@ def google_spend(start: date, end: date):
             print(f"   {error.error_code} {error.message}")
         return None
     return total / 1e6
- 
- 
+
+
 SPEND_LAST7 = google_spend(LAST7_START, LAST7_END)
 SPEND_LAST7_LY = google_spend(LAST7_LY_START, LAST7_LY_END)
 SPEND_MTD = google_spend(MTD_START, MTD_END)
 SPEND_MTD_LY = google_spend(MTD_LY_START, MTD_LY_END)
- 
+
 print(f"Prior 7 days spend:  ${SPEND_LAST7:,.2f}   (LY: ${SPEND_LAST7_LY:,.2f})")
 print(f"MTD spend:           ${SPEND_MTD:,.2f}   (LY: ${SPEND_MTD_LY:,.2f})")
- 
+
 MONTHLY_SPEND_ACTUAL = {}
 for m in range(1, TODAY.month + 1):
     m_start = date(TODAY.year, m, 1)
@@ -351,7 +182,7 @@ for m in range(1, TODAY.month + 1):
     label = m_start.strftime("%b-%y")
     MONTHLY_SPEND_ACTUAL[label] = google_spend(m_start, m_end)
     print(f"   {label}: ${MONTHLY_SPEND_ACTUAL[label]:,.2f} spend")
- 
+
 MONTHLY_SPEND_ACTUAL_LY = {}
 for m in range(1, 13):
     m_start = date(LAST_YEAR, m, 1)
@@ -359,7 +190,7 @@ for m in range(1, 13):
     label = m_start.strftime("%b-%y")
     MONTHLY_SPEND_ACTUAL_LY[label] = google_spend(m_start, m_end)
     print(f"   {label} (LY): ${MONTHLY_SPEND_ACTUAL_LY[label]:,.2f} spend")
- 
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Cell 7 equivalent — Shopify gross & net sales (ShopifyQL)
 # ─────────────────────────────────────────────────────────────────────────────
@@ -368,8 +199,8 @@ SHOPIFY_CLIENT_ID = os.getenv("SHOPIFY_CLIENT_ID", "")
 SHOPIFY_CLIENT_SECRET = os.getenv("SHOPIFY_CLIENT_SECRET", "")
 TOKEN_ENDPOINT = f"https://{SHOPIFY_DOMAIN}/admin/oauth/access_token"
 shop = SHOPIFY_DOMAIN.replace(".myshopify.com", "")
- 
- 
+
+
 def get_shopify_token() -> str:
     """Exchanges Client ID + Secret for a fresh Admin API token (client_credentials grant).
     Requires the app to have the read_reports scope enabled for ShopifyQL access."""
@@ -390,14 +221,14 @@ def get_shopify_token() -> str:
     if not token:
         raise RuntimeError(f"No access_token in response: {resp.json()}")
     return token
- 
- 
+
+
 token = get_shopify_token()
 print("Shopify Admin API token obtained.")
- 
+
 sql_client = ShopifyQLClient(shop=shop, access_token=token, version="2025-01")
- 
- 
+
+
 def _run_shopifyql_df(query: str):
     try:
         return sql_client.query_pandas(query)
@@ -410,8 +241,8 @@ def _run_shopifyql_df(query: str):
                 "app version, and re-run."
             ) from e
         raise
- 
- 
+
+
 def shopify_sales(start: date, end: date) -> dict:
     """Returns {gross_sales, net_sales} for the window."""
     query = f"FROM sales SHOW gross_sales, net_sales SINCE {start.isoformat()} UNTIL {end.isoformat()}"
@@ -423,16 +254,16 @@ def shopify_sales(start: date, end: date) -> dict:
         "gross_sales": float(row.get("gross_sales", 0) or 0),
         "net_sales": float(row.get("net_sales", 0) or 0),
     }
- 
- 
+
+
 SALES_LAST7 = shopify_sales(LAST7_START, LAST7_END)
 SALES_LAST7_LY = shopify_sales(LAST7_LY_START, LAST7_LY_END)
 SALES_MTD = shopify_sales(MTD_START, MTD_END)
 SALES_MTD_LY = shopify_sales(MTD_LY_START, MTD_LY_END)
- 
+
 print(f"Prior 7 days:  gross ${SALES_LAST7['gross_sales']:,.2f}  net ${SALES_LAST7['net_sales']:,.2f}")
 print(f"MTD:           gross ${SALES_MTD['gross_sales']:,.2f}  net ${SALES_MTD['net_sales']:,.2f}")
- 
+
 # Net Income = net_sales + shipping_charges (NOT Shopify's "total_sales", which also
 # includes sales tax and duties — see notebook Cell 7 for the full rationale, verified
 # against 2025 actuals: total_sales implied an ~8.4% reduction from Gross vs. the real
@@ -449,7 +280,7 @@ for m in range(1, TODAY.month + 1):
     MONTHLY_INCOME_ACTUAL[label] = float((row.get("net_sales", 0) or 0) + (row.get("shipping_charges", 0) or 0)) if row is not None else 0.0
     MONTHLY_GROSS_SALES_ACTUAL[label] = float(row.get("gross_sales", 0) or 0) if row is not None else 0.0
     print(f"   {label}: ${MONTHLY_INCOME_ACTUAL[label]:,.2f} net income (net sales + shipping) | ${MONTHLY_GROSS_SALES_ACTUAL[label]:,.2f} gross sales")
- 
+
 MONTHLY_INCOME_ACTUAL_LY = {}
 MONTHLY_GROSS_SALES_ACTUAL_LY = {}
 for m in range(1, 13):
@@ -462,36 +293,36 @@ for m in range(1, 13):
     MONTHLY_INCOME_ACTUAL_LY[label] = float((row.get("net_sales", 0) or 0) + (row.get("shipping_charges", 0) or 0)) if row is not None else 0.0
     MONTHLY_GROSS_SALES_ACTUAL_LY[label] = float(row.get("gross_sales", 0) or 0) if row is not None else 0.0
     print(f"   {label} (LY): ${MONTHLY_INCOME_ACTUAL_LY[label]:,.2f} net income")
- 
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Cell 8 equivalent — True ROAS / ROI + full report_data build
 # ─────────────────────────────────────────────────────────────────────────────
- 
- 
+
+
 def ratios(sales, spend):
     if not spend:
         return {"roas": None, "roi": None}
     return {"roas": sales["gross_sales"] / spend, "roi": sales["net_sales"] / spend}
- 
- 
+
+
 def pct_change(new, old):
     if not old:
         return None
     return (new - old) / old * 100
- 
- 
+
+
 period_last7 = {**SALES_LAST7, "spend": SPEND_LAST7, **ratios(SALES_LAST7, SPEND_LAST7)}
 period_last7_ly = {**SALES_LAST7_LY, "spend": SPEND_LAST7_LY, **ratios(SALES_LAST7_LY, SPEND_LAST7_LY)}
 period_mtd = {**SALES_MTD, "spend": SPEND_MTD, **ratios(SALES_MTD, SPEND_MTD)}
 period_mtd_ly = {**SALES_MTD_LY, "spend": SPEND_MTD_LY, **ratios(SALES_MTD_LY, SPEND_MTD_LY)}
- 
+
 yoy_deltas = {
     "last7_roas_pct": pct_change(period_last7["roas"], period_last7_ly["roas"]),
     "last7_roi_pct": pct_change(period_last7["roi"], period_last7_ly["roi"]),
     "mtd_roas_pct": pct_change(period_mtd["roas"], period_mtd_ly["roas"]),
     "mtd_roi_pct": pct_change(period_mtd["roi"], period_mtd_ly["roi"]),
 }
- 
+
 plan = {
     "month": MONTH_LABEL,
     "net_income_target": INCOME_TARGET[MONTH_LABEL],
@@ -507,14 +338,14 @@ plan = {
     "spend_prorated_budget": GOOGLE_SPEND_BUDGET[MONTH_LABEL] * DAY_OF_MONTH / DAYS_IN_MONTH,
     "spend_projected": MONTHLY_SPEND_ACTUAL[MONTH_LABEL] / DAY_OF_MONTH * DAYS_IN_MONTH,
 }
- 
+
 monthly_history = []
 for label in INCOME_TARGET:
     is_current = label == MONTH_LABEL
     income_actual = MONTHLY_INCOME_ACTUAL.get(label)
     spend_actual = MONTHLY_SPEND_ACTUAL.get(label)
     gross_actual = MONTHLY_GROSS_SALES_ACTUAL.get(label)
- 
+
     income_projected = None
     spend_projected = None
     gross_projected = None
@@ -524,12 +355,12 @@ for label in INCOME_TARGET:
         spend_projected = spend_actual / DAY_OF_MONTH * DAYS_IN_MONTH
     if is_current and gross_actual is not None:
         gross_projected = gross_actual / DAY_OF_MONTH * DAYS_IN_MONTH
- 
+
     income_basis_for_delta = income_projected if is_current else income_actual
     gross_basis_for_delta = gross_projected if is_current else gross_actual
     income_delta = (income_basis_for_delta - INCOME_TARGET[label]) if income_basis_for_delta is not None else None
     gross_sales_delta = (gross_basis_for_delta - GROSS_SALES_TARGET[label]) if gross_basis_for_delta is not None else None
- 
+
     monthly_history.append({
         "month": label,
         "income_target": INCOME_TARGET[label],
@@ -551,7 +382,7 @@ for label in INCOME_TARGET:
         "spend_projected": spend_projected,
         "is_current": is_current,
     })
- 
+
 totals = {
     "income_target": round(sum(INCOME_TARGET.values()), 2),
     "income_actual": round(sum(MONTHLY_INCOME_ACTUAL.values()), 2),
@@ -563,17 +394,17 @@ totals = {
 totals["roas"] = (totals["gross_sales_actual"] / totals["spend_actual"]) if totals["spend_actual"] else None
 totals["income_delta"] = round(totals["income_actual"] - totals["income_target"], 2)
 totals["gross_sales_delta"] = round(totals["gross_sales_actual"] - totals["gross_sales_target"], 2)
- 
+
 months_order = list(INCOME_TARGET.keys())
 current_idx = months_order.index(MONTH_LABEL)
- 
+
 completed_income_actual = sum(MONTHLY_INCOME_ACTUAL[m] for m in months_order[:current_idx])
 completed_income_target = sum(INCOME_TARGET[m] for m in months_order[:current_idx])
 completed_gross_actual = sum(MONTHLY_GROSS_SALES_ACTUAL[m] for m in months_order[:current_idx])
 completed_gross_target = sum(GROSS_SALES_TARGET[m] for m in months_order[:current_idx])
 completed_spend_actual = sum(MONTHLY_SPEND_ACTUAL[m] for m in months_order[:current_idx])
 completed_spend_budget = sum(GOOGLE_SPEND_BUDGET[m] for m in months_order[:current_idx])
- 
+
 ytd_income_actual = completed_income_actual + MONTHLY_INCOME_ACTUAL[MONTH_LABEL]
 ytd_income_target = completed_income_target + plan["net_income_prorated_target"]
 ytd_gross_actual = completed_gross_actual + MONTHLY_GROSS_SALES_ACTUAL[MONTH_LABEL]
@@ -581,7 +412,7 @@ ytd_gross_target = completed_gross_target + plan["gross_sales_prorated_target"]
 ytd_spend_actual = completed_spend_actual + MONTHLY_SPEND_ACTUAL[MONTH_LABEL]
 ytd_spend_budget = completed_spend_budget + plan["spend_prorated_budget"]
 ytd_roas = (ytd_gross_actual / ytd_spend_actual) if ytd_spend_actual else None
- 
+
 ytd = {
     "label": f"YTD (Jan 1 – {TODAY.strftime('%b %d')})",
     "income_target": round(ytd_income_target, 2),
@@ -596,29 +427,29 @@ ytd = {
     "spend_status": "hit" if ytd_spend_actual <= ytd_spend_budget else "miss",
     "roas": round(ytd_roas, 3) if ytd_roas is not None else None,
 }
- 
+
 gross_basis_actual = completed_gross_actual + (plan["gross_sales_projected"] or 0)
 gross_basis_target = completed_gross_target + GROSS_SALES_TARGET[MONTH_LABEL]
 spend_basis_actual = completed_spend_actual + (plan["spend_projected"] or 0)
 spend_basis_target = completed_spend_budget + GOOGLE_SPEND_BUDGET[MONTH_LABEL]
- 
+
 gross_attainment = gross_basis_actual / gross_basis_target if gross_basis_target else None
 spend_attainment = spend_basis_actual / spend_basis_target if spend_basis_target else None
- 
+
 ANNUAL_INCOME_TARGET = sum(INCOME_TARGET.values())
 ANNUAL_GROSS_SALES_TARGET = sum(GROSS_SALES_TARGET.values())
 ANNUAL_SPEND_BUDGET = sum(GOOGLE_SPEND_BUDGET.values())
- 
+
 PROJECTED_ANNUAL_GROSS_SALES = gross_attainment * ANNUAL_GROSS_SALES_TARGET if gross_attainment is not None else None
 PROJECTED_ANNUAL_SPEND = spend_attainment * ANNUAL_SPEND_BUDGET if spend_attainment is not None else None
- 
+
 if ytd_gross_actual:
     realized_reduction_rate = 1 - (ytd_income_actual / ytd_gross_actual)
 elif ANNUAL_GROSS_SALES_TARGET:
     realized_reduction_rate = 1 - (ANNUAL_INCOME_TARGET / ANNUAL_GROSS_SALES_TARGET)
 else:
     realized_reduction_rate = 0.0
- 
+
 PROJECTED_ANNUAL_INCOME = (
     PROJECTED_ANNUAL_GROSS_SALES * (1 - realized_reduction_rate)
     if PROJECTED_ANNUAL_GROSS_SALES is not None else None
@@ -627,12 +458,12 @@ income_attainment = (
     PROJECTED_ANNUAL_INCOME / ANNUAL_INCOME_TARGET
     if (PROJECTED_ANNUAL_INCOME is not None and ANNUAL_INCOME_TARGET) else None
 )
- 
+
 net_income_projected_derived = (
     plan["gross_sales_projected"] * (1 - realized_reduction_rate)
     if plan["gross_sales_projected"] is not None else plan["net_income_projected"]
 )
- 
+
 year_complete = (TODAY.month == 12 and TODAY.day == DAYS_IN_MONTH)
 if year_complete:
     annual_income_status = "hit" if PROJECTED_ANNUAL_INCOME >= ANNUAL_INCOME_TARGET else "miss"
@@ -642,18 +473,18 @@ else:
     annual_spend_status = "ontrack" if (spend_attainment or 0) <= 1 else "atrisk"
 totals["income_status"] = annual_income_status
 totals["spend_status"] = annual_spend_status
- 
+
 cum_target_income, cum_actual_income, cum_projected_income = [], [], []
 cum_target_spend, cum_actual_spend, cum_projected_spend = [], [], []
 running_target_income = running_actual_income = running_projected_income = 0.0
 running_target_spend = running_actual_spend = running_projected_spend = 0.0
- 
+
 for i, m in enumerate(months_order):
     running_target_income += INCOME_TARGET[m]
     running_target_spend += GOOGLE_SPEND_BUDGET[m]
     cum_target_income.append(round(running_target_income, 2))
     cum_target_spend.append(round(running_target_spend, 2))
- 
+
     if i < current_idx:
         running_actual_income += MONTHLY_INCOME_ACTUAL[m]
         running_actual_spend += MONTHLY_SPEND_ACTUAL[m]
@@ -677,7 +508,7 @@ for i, m in enumerate(months_order):
         running_projected_spend += GOOGLE_SPEND_BUDGET[m] * (spend_attainment if spend_attainment is not None else 1)
         cum_projected_income.append(round(running_projected_income, 2))
         cum_projected_spend.append(round(running_projected_spend, 2))
- 
+
 ly_months_order = [date(LAST_YEAR, m, 1).strftime("%b-%y") for m in range(1, 13)]
 cum_actual_income_ly, cum_actual_spend_ly = [], []
 running_ly_income = running_ly_spend = 0.0
@@ -686,12 +517,12 @@ for m in ly_months_order:
     running_ly_spend += MONTHLY_SPEND_ACTUAL_LY[m]
     cum_actual_income_ly.append(round(running_ly_income, 2))
     cum_actual_spend_ly.append(round(running_ly_spend, 2))
- 
+
 ANNUAL_INCOME_LY_TOTAL = sum(MONTHLY_INCOME_ACTUAL_LY.values())
 ANNUAL_GROSS_SALES_LY_TOTAL = sum(MONTHLY_GROSS_SALES_ACTUAL_LY.values())
 ANNUAL_SPEND_LY_TOTAL = sum(MONTHLY_SPEND_ACTUAL_LY.values())
- 
- 
+
+
 def build_recommendation(income_att, spend_att):
     if income_att is None or spend_att is None:
         return "Not enough data yet to project a full-year trend."
@@ -713,8 +544,8 @@ def build_recommendation(income_att, spend_att):
             f"already pacing at or above budget ({spend_gap:+.1f}%). This points to an efficiency "
             f"(ROAS) issue rather than a spend-level issue — consider optimizing campaigns rather "
             f"than increasing budget.")
- 
- 
+
+
 trend = {
     "months": months_order,
     "current_idx": current_idx,
@@ -740,16 +571,16 @@ trend = {
     "spend_attainment_pct": round(spend_attainment * 100, 1) if spend_attainment is not None else None,
     "recommendation": build_recommendation(income_attainment, spend_attainment),
 }
- 
+
 LAST7_DAYS_COUNT = 7
 CURRENT_DAILY_GROSS = period_last7["gross_sales"] / LAST7_DAYS_COUNT
 CURRENT_DAILY_NET = period_last7["net_sales"] / LAST7_DAYS_COUNT
 CURRENT_DAILY_SPEND = (period_last7["spend"] / LAST7_DAYS_COUNT) if period_last7["spend"] else None
 CURRENT_ROAS = period_last7["roas"]
 CURRENT_ROI = period_last7["roi"]
- 
+
 TARGET_DAILY_REVENUE = [30000, 33000, 35000, 40000, 45000, 50000]
- 
+
 scaling_targets = []
 for target in TARGET_DAILY_REVENUE:
     required_spend = (target / CURRENT_ROAS) if CURRENT_ROAS else None
@@ -763,7 +594,7 @@ for target in TARGET_DAILY_REVENUE:
         "implied_net_sales": round(implied_net, 2) if implied_net is not None else None,
         "monthly_spend_equivalent": round(required_spend * 30, 2) if required_spend is not None else None,
     })
- 
+
 scaling = {
     "basis": "Trailing 7-day average (excludes today)",
     "current_daily_gross": round(CURRENT_DAILY_GROSS, 2),
@@ -773,7 +604,7 @@ scaling = {
     "current_roi": round(CURRENT_ROI, 3) if CURRENT_ROI is not None else None,
     "targets": scaling_targets,
 }
- 
+
 # ─────────────────────────────────────────────────────────────────────────────
 # MoM True ROAS trend — re-visualizes the same monthly_history data already in
 # the Monthly Hits & Misses table as a line chart, so the reader sees the raw
@@ -789,7 +620,7 @@ scaling = {
 # ─────────────────────────────────────────────────────────────────────────────
 ROAS_SCALEUP_START_MONTH = "Mar-26"
 ROAS_SCALEUP_STABILIZATION_MONTH = None
- 
+
 # Manually entered forward-looking ROAS projections — not derived from actual
 # spend/sales data, just business projections plugged in ahead of the real
 # months landing. Rendered as a dotted continuation of the True ROAS line so
@@ -801,7 +632,7 @@ ROAS_TREND_MANUAL_PROJECTIONS = {
     "Aug-26": 6.1,
     "Sep-26": 6.5,
 }
- 
+
 # Estimated daily ad spend pace for those same projected months (the red
 # "Daily Ad Spend Pace" line). Fill in a number here for each month above to
 # have it plotted as a dotted (estimated) continuation of the historic solid
@@ -810,7 +641,7 @@ ROAS_TREND_MANUAL_SPEND_PROJECTIONS = {
     # "Aug-26": 0,
     # "Sep-26": 0,
 }
- 
+
 roas_trend_months, roas_trend_roas, roas_trend_daily_spend = [], [], []
 for m in monthly_history:
     if m["gross_sales_actual"] is None or not m["spend_actual"]:
@@ -821,16 +652,16 @@ for m in monthly_history:
     _days_in_full_month = calendar.monthrange(_dt.year, _dt.month)[1]
     _days_elapsed = DAY_OF_MONTH if m["is_current"] else _days_in_full_month
     roas_trend_daily_spend.append(round(m["spend_actual"] / _days_elapsed, 2) if _days_elapsed else None)
- 
+
 roas_trend_actual_count = len(roas_trend_months)
- 
+
 for _proj_month, _proj_roas in ROAS_TREND_MANUAL_PROJECTIONS.items():
     if _proj_month in roas_trend_months:
         continue  # real data already landed for this month — don't double up
     roas_trend_months.append(_proj_month)
     roas_trend_roas.append(_proj_roas)
     roas_trend_daily_spend.append(ROAS_TREND_MANUAL_SPEND_PROJECTIONS.get(_proj_month))
- 
+
 roas_trend = {
     "months": roas_trend_months,
     "roas": roas_trend_roas,
@@ -841,7 +672,7 @@ roas_trend = {
     "annotation_label": ("Planned scale-up period — ROAS dip reflects deliberate pacing toward "
                          "$30K/day daily revenue target, staged to protect CS capacity."),
 }
- 
+
 report_data = {
     "store": "New York Hardware, Inc",
     "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M"),
@@ -859,16 +690,16 @@ report_data = {
     "scaling": scaling,
     "roas_trend": roas_trend,
 }
- 
+
 print("Report data built.")
- 
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Cell 9 equivalent — render HTML dashboard
 # ─────────────────────────────────────────────────────────────────────────────
 template_html = (SCRIPT_DIR / "dashboard_template.html").read_text(encoding="utf-8")
 html_out = template_html.replace("__REPORT_DATA_JSON__", json.dumps(report_data))
 print(f"Dashboard rendered ({len(html_out):,} characters).")
- 
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Write outputs — index.html at repo root (served by GitHub Pages, always the
 # most recently generated run — including as-of-date backfill runs) + a dated
@@ -877,21 +708,21 @@ print(f"Dashboard rendered ({len(html_out):,} characters).")
 # and pushes these; there is no Drive step in this version.
 # ─────────────────────────────────────────────────────────────────────────────
 (SCRIPT_DIR / "index.html").write_text(html_out, encoding="utf-8")
- 
+
 ts = TODAY.strftime("%Y%m%d")
- 
+
 history_dir = SCRIPT_DIR / "history"
 history_dir.mkdir(exist_ok=True)
 (history_dir / f"report_{ts}.html").write_text(html_out, encoding="utf-8")
- 
+
 data_dir = SCRIPT_DIR / "data"
 data_dir.mkdir(exist_ok=True)
 (data_dir / f"weekly_kpi_data_{ts}.json").write_text(json.dumps(report_data, indent=2), encoding="utf-8")
- 
+
 print(f"Wrote {SCRIPT_DIR / 'index.html'}")
 print(f"Wrote {history_dir / f'report_{ts}.html'}")
 print(f"Wrote {data_dir / f'weekly_kpi_data_{ts}.json'}")
- 
+
 # ─────────────────────────────────────────────────────────────────────────────
 # PDF export — renders the dashboard through headless Chromium (not a
 # JS-blind HTML-to-PDF tool), so the Chart.js canvases actually appear in the
@@ -903,7 +734,7 @@ pdf_path = SCRIPT_DIR / "latest_report.pdf"
 pdf_generated = False
 try:
     from playwright.sync_api import sync_playwright
- 
+
     with sync_playwright() as p:
         browser = p.chromium.launch()
         page = browser.new_page()
@@ -917,14 +748,14 @@ try:
             margin={"top": "12mm", "bottom": "12mm", "left": "10mm", "right": "10mm"},
         )
         browser.close()
- 
+
     (history_dir / f"report_{ts}.pdf").write_bytes(pdf_path.read_bytes())
     pdf_generated = True
     print(f"Wrote {pdf_path}")
     print(f"Wrote {history_dir / f'report_{ts}.pdf'}")
 except Exception as e:
     print(f"PDF export failed (non-fatal — HTML/Sheets outputs are unaffected): {e}")
- 
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Google Sheets — full data dump. Every table shown on the dashboard gets its
 # own tab, cleared and rewritten fresh each run (not an accumulating log) so
@@ -934,13 +765,13 @@ except Exception as e:
 # ─────────────────────────────────────────────────────────────────────────────
 GOOGLE_SHEETS_SERVICE_ACCOUNT_JSON = os.getenv("GOOGLE_SHEETS_SERVICE_ACCOUNT_JSON", "").strip()
 GOOGLE_SHEET_ID = os.getenv("GOOGLE_SHEET_ID", "").strip()
- 
+
 if not GOOGLE_SHEETS_SERVICE_ACCOUNT_JSON or not GOOGLE_SHEET_ID:
     print("GOOGLE_SHEETS_SERVICE_ACCOUNT_JSON / GOOGLE_SHEET_ID not set — skipping Google Sheets export.")
 else:
     try:
         import gspread
- 
+
         def _write_sheet_table(gc_client, sheet_id, tab_name, header, rows):
             sh = gc_client.open_by_key(sheet_id)
             try:
@@ -949,13 +780,13 @@ else:
             except gspread.WorksheetNotFound:
                 ws = sh.add_worksheet(title=tab_name, rows=max(len(rows) + 10, 50), cols=max(len(header), 10))
             ws.update([header] + [["" if v is None else v for v in row] for row in rows], value_input_option="USER_ENTERED")
- 
+
         gc = gspread.service_account_from_dict(json.loads(GOOGLE_SHEETS_SERVICE_ACCOUNT_JSON))
- 
+
         def _yoy_pct(new, old):
             v = pct_change(new, old)
             return round(v, 1) if v is not None else None
- 
+
         # Tabs 1-2: Prior 7 Days
         _write_sheet_table(gc, GOOGLE_SHEET_ID, "Prior 7 Days", ["Metric", "This Year", "Last Year", "YoY Δ %"], [
             ["Gross Sales", period_last7["gross_sales"], period_last7_ly["gross_sales"], _yoy_pct(period_last7["gross_sales"], period_last7_ly["gross_sales"])],
@@ -966,7 +797,7 @@ else:
             ["True ROAS", period_last7["roas"], period_last7_ly["roas"], yoy_deltas["last7_roas_pct"]],
             ["ROI", period_last7["roi"], period_last7_ly["roi"], yoy_deltas["last7_roi_pct"]],
         ])
- 
+
         # Tabs 3-4: MTD
         _write_sheet_table(gc, GOOGLE_SHEET_ID, "MTD", ["Metric", "This Year", "Last Year", "YoY Δ %"], [
             ["Gross Sales", period_mtd["gross_sales"], period_mtd_ly["gross_sales"], _yoy_pct(period_mtd["gross_sales"], period_mtd_ly["gross_sales"])],
@@ -977,7 +808,7 @@ else:
             ["True ROAS", period_mtd["roas"], period_mtd_ly["roas"], yoy_deltas["mtd_roas_pct"]],
             ["ROI", period_mtd["roi"], period_mtd_ly["roi"], yoy_deltas["mtd_roi_pct"]],
         ])
- 
+
         # Tabs 5-7: Financial Plan — MTD Attainment
         _write_sheet_table(gc, GOOGLE_SHEET_ID, "Plan - Net Income", ["Metric", plan["month"]], [
             ["Prorated Target", plan["net_income_prorated_target"]],
@@ -997,7 +828,7 @@ else:
             ["Trending", plan["spend_projected"]],
             ["Full Month Budget", plan["spend_budget"]],
         ])
- 
+
         # Tab 8: Monthly Hits & Misses (+ YTD row + Totals/Full-Year row) — status
         # labels replicate dashboard_template.html's incomePill/spendPill logic exactly.
         monthly_header = [
@@ -1013,16 +844,16 @@ else:
                 income_result = "—"
             else:
                 income_result = "HIT" if m["income_actual"] >= m["income_target"] else "MISS"
- 
+
             if m["is_current"] and m["spend_projected"] is not None:
                 spend_result = "ON TRACK" if m["spend_projected"] <= m["spend_budget"] else "OVER PACE"
             elif m["spend_actual"] is None:
                 spend_result = "—"
             else:
                 spend_result = "ON BUDGET" if m["spend_actual"] <= m["spend_budget"] else "OVER"
- 
+
             monthly_roas = (m["gross_sales_actual"] / m["spend_actual"]) if (m["gross_sales_actual"] is not None and m["spend_actual"]) else None
- 
+
             monthly_rows.append([
                 m["month"], m["income_target"], m["income_actual"], m["income_delta_basis"], m["income_delta"], income_result,
                 m["gross_sales_target"], m["gross_sales_actual"], m["gross_sales_delta_basis"], m["gross_sales_delta"],
@@ -1044,13 +875,13 @@ else:
             round(totals["roas"], 3) if totals["roas"] is not None else None,
         ])
         _write_sheet_table(gc, GOOGLE_SHEET_ID, "Monthly Hits & Misses", monthly_header, monthly_rows)
- 
+
         # Tab 9: MoM True ROAS Trend (the same series behind the new line chart)
         _write_sheet_table(gc, GOOGLE_SHEET_ID, "MoM ROAS Trend", ["Month", "True ROAS", "Daily Ad Spend Pace"], [
             [roas_trend["months"][i], roas_trend["roas"][i], roas_trend["daily_spend"][i]]
             for i in range(len(roas_trend["months"]))
         ])
- 
+
         # Tab 10: Full-Year Trend — Prior Year Total vs. Projected
         def _yoy_delta_val(projected, ly_total):
             return round(projected - ly_total, 2) if (projected is not None and ly_total is not None) else None
@@ -1065,7 +896,7 @@ else:
              _yoy_delta_val(trend["projected_annual_spend"], trend["annual_spend_ly_total"]),
              _yoy_pct(trend["projected_annual_spend"], trend["annual_spend_ly_total"])],
         ])
- 
+
         # Tabs 11-12: Trend detail — the actual cumulative series behind the two line charts
         _write_sheet_table(gc, GOOGLE_SHEET_ID, "Trend Detail - Income", ["Month", "Cumulative Target", "Cumulative Actual", "Cumulative Projected", "Cumulative LY Actual"], [
             [trend["months"][i], trend["cum_target_income"][i], trend["cum_actual_income"][i],
@@ -1077,7 +908,7 @@ else:
              trend["cum_projected_spend"][i], trend["cum_actual_spend_ly"][i]]
             for i in range(len(trend["months"]))
         ])
- 
+
         # Tab 13: Scaling Opportunities
         scaling_rows = [[
             "Current (7-day avg)", None, scaling["current_daily_spend"], None,
@@ -1089,11 +920,11 @@ else:
                 t["implied_net_sales"], t["monthly_spend_equivalent"],
             ])
         _write_sheet_table(gc, GOOGLE_SHEET_ID, "Scaling Opportunities", ["Scenario", "Daily Revenue Target", "Required Daily Spend", "Δ Spend vs. Current", "Implied Daily Net Sales", "Monthly Spend Equivalent"], scaling_rows)
- 
+
         print("Google Sheets export complete (13 tabs written).")
     except Exception as e:
         print(f"Google Sheets export failed (non-fatal, rest of the run is unaffected): {e}")
- 
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Email the PDF to stakeholders via SMTP (stdlib only — no new dependency).
 # Skipped entirely if the required env vars aren't all set, or if PDF
@@ -1105,7 +936,7 @@ EMAIL_FROM_ADDRESS = os.getenv("EMAIL_FROM_ADDRESS", "").strip()
 EMAIL_APP_PASSWORD = os.getenv("EMAIL_APP_PASSWORD", "").strip()
 EMAIL_RECIPIENTS = [addr.strip() for addr in os.getenv("EMAIL_RECIPIENTS", "").split(",") if addr.strip()]
 REPORT_LIVE_URL = os.getenv("REPORT_LIVE_URL", "").strip()
- 
+
 if not pdf_generated:
     print("Skipping email — no PDF was generated this run.")
 elif not (EMAIL_FROM_ADDRESS and EMAIL_APP_PASSWORD and EMAIL_RECIPIENTS):
@@ -1117,7 +948,7 @@ else:
         from email.mime.base import MIMEBase
         from email.mime.multipart import MIMEMultipart
         from email.mime.text import MIMEText
- 
+
         p7 = period_last7
         subject = f"NYH Weekly KPI Report — {plan['month']} (as of {TODAY.isoformat()})"
         roas_line = f"True ROAS (7d): {p7['roas']:.2f}x   |   ROI (7d): {p7['roi']:.2f}x" if p7["roas"] is not None else "True ROAS/ROI (7d): n/a"
@@ -1133,29 +964,27 @@ else:
         ]
         if REPORT_LIVE_URL:
             body_lines.append(f"Live interactive version: {REPORT_LIVE_URL}")
- 
+
         msg = MIMEMultipart()
         msg["From"] = EMAIL_FROM_ADDRESS
         msg["To"] = ", ".join(EMAIL_RECIPIENTS)
         msg["Subject"] = subject
         msg.attach(MIMEText("\n".join(body_lines), "plain"))
- 
+
         with open(pdf_path, "rb") as f:
             part = MIMEBase("application", "octet-stream")
             part.set_payload(f.read())
         encoders.encode_base64(part)
         part.add_header("Content-Disposition", f'attachment; filename="{pdf_path.name}"')
         msg.attach(part)
- 
+
         with smtplib.SMTP(EMAIL_SMTP_HOST, EMAIL_SMTP_PORT) as server:
             server.starttls()
             server.login(EMAIL_FROM_ADDRESS, EMAIL_APP_PASSWORD)
             server.sendmail(EMAIL_FROM_ADDRESS, EMAIL_RECIPIENTS, msg.as_string())
- 
+
         print(f"Emailed PDF report to: {', '.join(EMAIL_RECIPIENTS)}")
     except Exception as e:
         print(f"Email send failed (non-fatal, rest of the run is unaffected): {e}")
- 
+
 print("Done.")
- 
-Unable to open file.
