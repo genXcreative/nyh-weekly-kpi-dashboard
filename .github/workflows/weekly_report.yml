@@ -13,9 +13,17 @@ on:
       as_of_date:
         description: >
           Optional: run the report as if this were "today" (format YYYY-MM-DD).
-          Shifts prior-7-days, MTD, YTD, and trend all consistently to this date —
-          useful for backfilling a missed week or checking a past week's numbers.
-          Leave blank for a normal current-week run.
+          Drives the Prior 7 Days window — useful for backfilling a missed week
+          or checking a past week's numbers. Leave blank for a normal current-week run.
+        required: false
+        default: ''
+      mtd_as_of_date:
+        description: >
+          Optional: format YYYY-MM-DD. Independently controls which month the
+          MTD/Plan/YTD/Trend sections show (separate from as_of_date above).
+          Leave blank to have it just follow as_of_date (normal behavior) —
+          only set this when you want Prior 7 Days and MTD to reflect two
+          different months in the same run.
         required: false
         default: ''
 
@@ -52,6 +60,7 @@ jobs:
           GOOGLE_ADS_LOGIN_CUSTOMER_ID: ${{ secrets.GOOGLE_ADS_LOGIN_CUSTOMER_ID }}
           GOOGLE_ADS_CUSTOMER_ID: ${{ secrets.GOOGLE_ADS_CUSTOMER_ID }}
           REPORT_AS_OF_DATE: ${{ github.event.inputs.as_of_date }}
+          REPORT_MTD_AS_OF_DATE: ${{ github.event.inputs.mtd_as_of_date }}
           GOOGLE_SHEETS_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SHEETS_SERVICE_ACCOUNT_JSON }}
           GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
           EMAIL_SMTP_HOST: ${{ secrets.EMAIL_SMTP_HOST }}
