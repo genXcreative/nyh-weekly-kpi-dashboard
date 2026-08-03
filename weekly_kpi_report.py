@@ -631,14 +631,16 @@ scaling = {
 # numbers first, then immediately sees the trend. Only includes months with
 # actual data so far this year (naturally grows each month, nothing to update).
 #
-# ROAS_SCALEUP_START_MONTH / ROAS_SCALEUP_STABILIZATION_MONTH are a narrative
-# annotation per the CFO's spec: they mark the deliberate ad-spend scale-up
-# toward the $30K/day daily revenue target, so a post-peak ROAS dip reads as
-# planned pacing rather than eroding efficiency. Update
-# ROAS_SCALEUP_STABILIZATION_MONTH (e.g. "Oct-26") once a flattening point is
-# projected — leave it as None until then, and the chart just won't mark one.
+# The shaded "planned scale-up" band always covers exactly the projected
+# (dotted-line) months — whatever's in ROAS_TREND_MANUAL_PROJECTIONS below
+# that hasn't been superseded by real data yet — so it stays in sync
+# automatically as months roll from projected to actual, rather than being a
+# fixed month someone has to update by hand.
+#
+# ROAS_SCALEUP_STABILIZATION_MONTH marks an optional projected flattening
+# point with a dotted vertical line — set it (e.g. "Oct-26") once you have
+# one; leave it as None until then and the chart just won't mark one.
 # ─────────────────────────────────────────────────────────────────────────────
-ROAS_SCALEUP_START_MONTH = "Mar-26"
 ROAS_SCALEUP_STABILIZATION_MONTH = None
 
 # Manually entered forward-looking ROAS projections — not derived from actual
@@ -663,6 +665,7 @@ ROAS_TREND_MANUAL_SPEND_PROJECTIONS = {
 }
 
 roas_trend_months, roas_trend_roas, roas_trend_daily_spend = [], [], []
+roas_trend_closed_count = 0
 for m in monthly_history:
     if m["gross_sales_actual"] is None or not m["spend_actual"]:
         continue
@@ -672,8 +675,14 @@ for m in monthly_history:
     _days_in_full_month = calendar.monthrange(_dt.year, _dt.month)[1]
     _days_elapsed = DAY_OF_MONTH if m["is_current"] else _days_in_full_month
     roas_trend_daily_spend.append(round(m["spend_actual"] / _days_elapsed, 2) if _days_elapsed else None)
+    # The in-progress current month is still plotted with its real (partial)
+    # numbers, but doesn't count as "closed/historic" — it's still forming,
+    # so it belongs visually with the projected/dotted region, not the solid
+    # historic line, same as the manually-projected months appended below.
+    if not m["is_current"]:
+        roas_trend_closed_count += 1
 
-roas_trend_actual_count = len(roas_trend_months)
+roas_trend_actual_count = roas_trend_closed_count
 
 for _proj_month, _proj_roas in ROAS_TREND_MANUAL_PROJECTIONS.items():
     if _proj_month in roas_trend_months:
@@ -682,12 +691,19 @@ for _proj_month, _proj_roas in ROAS_TREND_MANUAL_PROJECTIONS.items():
     roas_trend_roas.append(_proj_roas)
     roas_trend_daily_spend.append(ROAS_TREND_MANUAL_SPEND_PROJECTIONS.get(_proj_month))
 
+# Band covers only the projected months (from the actual/projected boundary
+# to the end of the chart) — None if every plotted month already has real
+# data, so the band just disappears once nothing's left to project.
+roas_trend_band_start = (
+    roas_trend_months[roas_trend_actual_count] if roas_trend_actual_count < len(roas_trend_months) else None
+)
+
 roas_trend = {
     "months": roas_trend_months,
     "roas": roas_trend_roas,
     "daily_spend": roas_trend_daily_spend,
     "actual_count": roas_trend_actual_count,
-    "annotation_start_month": ROAS_SCALEUP_START_MONTH,
+    "annotation_start_month": roas_trend_band_start,
     "stabilization_month": ROAS_SCALEUP_STABILIZATION_MONTH,
     "annotation_label": ("Planned scale-up period — ROAS dip reflects deliberate pacing toward "
                          "$30K/day daily revenue target, staged to protect CS capacity."),
