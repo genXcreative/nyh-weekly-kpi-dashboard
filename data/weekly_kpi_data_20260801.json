@@ -1,6 +1,6 @@
 {
   "store": "New York Hardware, Inc",
-  "generated_at": "2026-08-03 16:03",
+  "generated_at": "2026-08-03 22:05",
   "last7_range": "Jul 25 \u2013 Jul 31, 2026",
   "periods": {
     "last7": {
@@ -520,8 +520,8 @@
       null,
       null
     ],
-    "actual_count": 7,
-    "annotation_start_month": "Mar-26",
+    "actual_count": 6,
+    "annotation_start_month": "Jul-26",
     "stabilization_month": null,
     "annotation_label": "Planned scale-up period \u2014 ROAS dip reflects deliberate pacing toward $30K/day daily revenue target, staged to protect CS capacity."
   }
