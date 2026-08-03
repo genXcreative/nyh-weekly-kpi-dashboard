@@ -22,10 +22,14 @@ Required environment variables:
     GOOGLE_ADS_CUSTOMER_ID         the target account id being reported on
 
 Optional environment variables:
-    REPORT_AS_OF_DATE               ISO date (YYYY-MM-DD). Runs the whole report as if
-                                     this were "today" — every window (prior 7 days, MTD,
-                                     YTD, trend) shifts to be relative to this date instead
-                                     of the real current date. Leave unset for normal runs.
+    REPORT_AS_OF_DATE               ISO date (YYYY-MM-DD). Drives the Prior 7 Days window
+                                     (and, unless REPORT_MTD_AS_OF_DATE is also set, MTD/
+                                     Plan/YTD/Trend too). Leave unset for normal runs.
+    REPORT_MTD_AS_OF_DATE            ISO date (YYYY-MM-DD). Independently controls which
+                                     month MTD/Plan/YTD/Trend reflect. Leave unset to have
+                                     it just follow REPORT_AS_OF_DATE (normal behavior) —
+                                     only set this to show Prior 7 Days and MTD from two
+                                     different months in the same run.
     GOOGLE_SHEETS_SERVICE_ACCOUNT_JSON   full JSON key for a Google Cloud service account
                                           with Sheets API access (optional — skipped if unset)
     GOOGLE_SHEET_ID                      target spreadsheet ID (optional — skipped if unset)
@@ -55,9 +59,18 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 #
 # REPORT_AS_OF_DATE lets a manual run generate the report as of any past date —
 # handy for backfilling a missed week or spot-checking a prior week's numbers —
-# without needing a separate code path. Every downstream window (prior 7 days,
-# MTD, YTD, trend, monthly history) is computed relative to TODAY, so setting
-# this one value consistently shifts the entire report.
+# without needing a separate code path. It drives the Prior 7 Days window (and
+# the report's generated-at timestamp).
+#
+# REPORT_MTD_AS_OF_DATE is a second, independent override for everything that
+# means "Month to Date": the MTD vs. Last Year cards/table, Financial Plan MTD
+# Attainment, Monthly Hits & Misses' "current month" status, YTD, and the
+# trend/ROAS charts. Left unset, it just follows REPORT_AS_OF_DATE (normal
+# behavior). Set it separately when you want those sections to reflect a
+# different month than whatever month Prior 7 Days lands in — e.g. running
+# with REPORT_AS_OF_DATE=2026-08-01 puts Prior 7 Days on the last week of July,
+# but MTD/Plan/YTD would otherwise show a 1-day-old August instead of July;
+# adding REPORT_MTD_AS_OF_DATE=2026-07-31 makes those sections show July too.
 # ─────────────────────────────────────────────────────────────────────────────
 PACIFIC = ZoneInfo("America/Los_Angeles")
 _as_of_override = os.getenv("REPORT_AS_OF_DATE", "").strip()
@@ -66,6 +79,13 @@ if _as_of_override:
     print(f"REPORT_AS_OF_DATE set — running as if today were {TODAY} (real today is {datetime.now(PACIFIC).date()}).")
 else:
     TODAY = datetime.now(PACIFIC).date()
+
+_mtd_as_of_override = os.getenv("REPORT_MTD_AS_OF_DATE", "").strip()
+if _mtd_as_of_override:
+    MTD_TODAY = date.fromisoformat(_mtd_as_of_override)
+    print(f"REPORT_MTD_AS_OF_DATE set — MTD/Plan/YTD/Trend sections use {MTD_TODAY} as \"today\" (Prior 7 Days still uses {TODAY}).")
+else:
+    MTD_TODAY = TODAY
 
 
 def prior_n_days_excluding_today(today, n):
@@ -86,13 +106,13 @@ def same_window_last_year(start, end):
 LAST7_START, LAST7_END = prior_n_days_excluding_today(TODAY, 7)
 LAST7_LY_START, LAST7_LY_END = same_window_last_year(LAST7_START, LAST7_END)
 
-MTD_START = TODAY.replace(day=1)
-MTD_END = TODAY
+MTD_START = MTD_TODAY.replace(day=1)
+MTD_END = MTD_TODAY
 MTD_LY_START, MTD_LY_END = same_window_last_year(MTD_START, MTD_END)
 
-MONTH_LABEL = TODAY.strftime("%b-%y")
-DAYS_IN_MONTH = calendar.monthrange(TODAY.year, TODAY.month)[1]
-DAY_OF_MONTH = TODAY.day
+MONTH_LABEL = MTD_TODAY.strftime("%b-%y")
+DAYS_IN_MONTH = calendar.monthrange(MTD_TODAY.year, MTD_TODAY.month)[1]
+DAY_OF_MONTH = MTD_TODAY.day
 LAST_YEAR = TODAY.year - 1
 
 print(f"Prior 7 days:      {LAST7_START} → {LAST7_END}   (LY: {LAST7_LY_START} → {LAST7_LY_END})")
@@ -176,9 +196,9 @@ print(f"Prior 7 days spend:  ${SPEND_LAST7:,.2f}   (LY: ${SPEND_LAST7_LY:,.2f})"
 print(f"MTD spend:           ${SPEND_MTD:,.2f}   (LY: ${SPEND_MTD_LY:,.2f})")
 
 MONTHLY_SPEND_ACTUAL = {}
-for m in range(1, TODAY.month + 1):
-    m_start = date(TODAY.year, m, 1)
-    m_end = TODAY if m == TODAY.month else date(TODAY.year, m, calendar.monthrange(TODAY.year, m)[1])
+for m in range(1, MTD_TODAY.month + 1):
+    m_start = date(MTD_TODAY.year, m, 1)
+    m_end = MTD_TODAY if m == MTD_TODAY.month else date(MTD_TODAY.year, m, calendar.monthrange(MTD_TODAY.year, m)[1])
     label = m_start.strftime("%b-%y")
     MONTHLY_SPEND_ACTUAL[label] = google_spend(m_start, m_end)
     print(f"   {label}: ${MONTHLY_SPEND_ACTUAL[label]:,.2f} spend")
@@ -270,9 +290,9 @@ print(f"MTD:           gross ${SALES_MTD['gross_sales']:,.2f}  net ${SALES_MTD['
 # ~11.2% discount+return rate).
 MONTHLY_INCOME_ACTUAL = {}
 MONTHLY_GROSS_SALES_ACTUAL = {}
-for m in range(1, TODAY.month + 1):
-    m_start = date(TODAY.year, m, 1)
-    m_end = TODAY if m == TODAY.month else date(TODAY.year, m, calendar.monthrange(TODAY.year, m)[1])
+for m in range(1, MTD_TODAY.month + 1):
+    m_start = date(MTD_TODAY.year, m, 1)
+    m_end = MTD_TODAY if m == MTD_TODAY.month else date(MTD_TODAY.year, m, calendar.monthrange(MTD_TODAY.year, m)[1])
     label = m_start.strftime("%b-%y")
     query = f"FROM sales SHOW net_sales, shipping_charges, gross_sales SINCE {m_start.isoformat()} UNTIL {m_end.isoformat()}"
     df = _run_shopifyql_df(query)
@@ -414,7 +434,7 @@ ytd_spend_budget = completed_spend_budget + plan["spend_prorated_budget"]
 ytd_roas = (ytd_gross_actual / ytd_spend_actual) if ytd_spend_actual else None
 
 ytd = {
-    "label": f"YTD (Jan 1 – {TODAY.strftime('%b %d')})",
+    "label": f"YTD (Jan 1 – {MTD_TODAY.strftime('%b %d')})",
     "income_target": round(ytd_income_target, 2),
     "income_actual": round(ytd_income_actual, 2),
     "income_delta": round(ytd_income_actual - ytd_income_target, 2),
@@ -464,7 +484,7 @@ net_income_projected_derived = (
     if plan["gross_sales_projected"] is not None else plan["net_income_projected"]
 )
 
-year_complete = (TODAY.month == 12 and TODAY.day == DAYS_IN_MONTH)
+year_complete = (MTD_TODAY.month == 12 and MTD_TODAY.day == DAYS_IN_MONTH)
 if year_complete:
     annual_income_status = "hit" if PROJECTED_ANNUAL_INCOME >= ANNUAL_INCOME_TARGET else "miss"
     annual_spend_status = "hit" if PROJECTED_ANNUAL_SPEND <= ANNUAL_SPEND_BUDGET else "miss"
