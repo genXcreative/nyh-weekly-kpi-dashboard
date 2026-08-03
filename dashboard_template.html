@@ -537,10 +537,15 @@ if (rt && rt.months && rt.months.length) {
           borderColor: COLOR_SPEND,
           backgroundColor: COLOR_SPEND,
           yAxisID: 'y1',
-          borderDash: [5, 3],
           tension: 0.3,
-          pointRadius: 3,
+          pointRadius: (ctx) => ctx.dataIndex >= rt.actual_count ? 3 : 4,
           pointHoverRadius: 5,
+          pointStyle: (ctx) => ctx.dataIndex >= rt.actual_count ? 'rectRot' : 'circle',
+          // Solid for historic (measured) months, dotted for estimated months —
+          // same actual/projected boundary as the True ROAS line above.
+          segment: {
+            borderDash: (ctx) => (ctx.p0DataIndex >= rt.actual_count - 1) ? [6, 4] : undefined,
+          },
         },
       ],
     },
@@ -581,7 +586,7 @@ if (rt && rt.months && rt.months.length) {
   const hasProjectedMonths = rt.actual_count != null && rt.actual_count < rt.months.length;
   document.getElementById('roasTrendNote').textContent =
     'Shaded band = ' + (rt.annotation_label || '') +
-    (hasProjectedMonths ? ` Dotted portion of the line (from ${rt.months[rt.actual_count]} onward) reflects forward-looking projections, not measured actuals.` : '') +
+    (hasProjectedMonths ? ` Dotted portions of both lines (from ${rt.months[rt.actual_count]} onward) reflect the in-progress current month and forward-looking estimates, not finalized historic actuals.` : '') +
     (rt.stabilization_month ? ` Vertical dotted line marks the projected stabilization month (${rt.stabilization_month}).` : '');
 }
 
