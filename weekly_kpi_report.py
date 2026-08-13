@@ -39,6 +39,9 @@ Optional environment variables:
     EMAIL_APP_PASSWORD               Gmail/Workspace App Password    APP_PASSWORD, and
     EMAIL_RECIPIENTS                 comma-separated recipient list  RECIPIENTS are set)
     REPORT_LIVE_URL                  optional — if set, included as a link in the email
+    REPORT_SKIP_EMAIL                "true" to force-skip the email step this run
+                                      regardless of the EMAIL_* secrets above (set via the
+                                      manual run screen's send_email checkbox — see yml)
 """
 import calendar
 import json
@@ -973,7 +976,15 @@ EMAIL_APP_PASSWORD = os.getenv("EMAIL_APP_PASSWORD", "").strip()
 EMAIL_RECIPIENTS = [addr.strip() for addr in os.getenv("EMAIL_RECIPIENTS", "").split(",") if addr.strip()]
 REPORT_LIVE_URL = os.getenv("REPORT_LIVE_URL", "").strip()
 
-if not pdf_generated:
+# Manual "Run workflow" screen has a send_email checkbox — unchecking it sets
+# this to "true" so a test/backfill run can skip emailing the distro list
+# without touching the EMAIL_* secrets. Doesn't apply to the scheduled Monday
+# run (that input doesn't exist on a schedule trigger, so this stays "false").
+REPORT_SKIP_EMAIL = os.getenv("REPORT_SKIP_EMAIL", "").strip().lower() == "true"
+
+if REPORT_SKIP_EMAIL:
+    print("REPORT_SKIP_EMAIL set (send_email unchecked on manual run) — skipping email for this run.")
+elif not pdf_generated:
     print("Skipping email — no PDF was generated this run.")
 elif not (EMAIL_FROM_ADDRESS and EMAIL_APP_PASSWORD and EMAIL_RECIPIENTS):
     print("EMAIL_FROM_ADDRESS / EMAIL_APP_PASSWORD / EMAIL_RECIPIENTS not fully set — skipping email.")
