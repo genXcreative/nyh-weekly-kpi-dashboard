@@ -966,7 +966,7 @@ else:
 # Skipped entirely if the required env vars aren't all set, or if PDF
 # generation above failed — everything else in the run is unaffected.
 # ─────────────────────────────────────────────────────────────────────────────
-EMAIL_SMTP_HOST = os.getenv("EMAIL_SMTP_HOST", "smtp.gmail.com").strip()
+EMAIL_SMTP_HOST = (os.getenv("EMAIL_SMTP_HOST", "smtp.gmail.com") or "smtp.gmail.com").strip()
 EMAIL_SMTP_PORT = int((os.getenv("EMAIL_SMTP_PORT", "587") or "587").strip())
 EMAIL_FROM_ADDRESS = os.getenv("EMAIL_FROM_ADDRESS", "").strip()
 EMAIL_APP_PASSWORD = os.getenv("EMAIL_APP_PASSWORD", "").strip()
