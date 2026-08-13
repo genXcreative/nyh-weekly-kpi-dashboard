@@ -2,11 +2,15 @@ name: Weekly KPI Report
 
 on:
   schedule:
-    # 14:00 UTC every Monday = 6am Pacific Daylight Time / 7am Pacific Standard Time.
-    # Always still "Monday morning" in Pacific either way cron itself is UTC-only and
-    # does not adjust for daylight saving, but the script computes its own "today"
-    # in Pacific time regardless of what UTC hour it actually runs at, so this only
-    # needs to land comfortably within Monday Pacific - it does not need to be exact.
+    # 12:12 UTC every Monday = 5:12am Pacific Daylight Time / 4:12am Pacific
+    # Standard Time. Cron is UTC-only and doesn't shift for daylight saving,
+    # so the Pacific clock time drifts an hour between summer and winter —
+    # not worth compensating for since the script computes its own "today" in
+    # Pacific time regardless of what UTC hour it actually runs at.
+    # Deliberately offset a few minutes past the hour — GitHub's own docs warn
+    # that scheduled workflows queue up (and can be delayed 15-50+ minutes)
+    # right at the top of every hour, since that's when the most cron jobs
+    # across all of GitHub fire at once. A few minutes off dodges most of that.
     - cron: '12 12 * * 1'
   workflow_dispatch:
     inputs:
