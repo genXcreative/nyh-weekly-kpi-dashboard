@@ -1,14 +1,14 @@
 {
   "store": "New York Hardware, Inc",
-  "generated_at": "2026-08-17 13:04",
+  "generated_at": "2026-08-17 16:57",
   "last7_range": "Aug 10 \u2013 Aug 16, 2026",
   "periods": {
     "last7": {
       "gross_sales": 228545.22,
       "net_sales": 203254.17,
-      "spend": 28685.734473,
-      "roas": 7.967208237778071,
-      "roi": 7.085548748675403
+      "spend": 28695.414473,
+      "roas": 7.9645206106028565,
+      "roi": 7.083158537098159
     },
     "last7_yoy": {
       "gross_sales": 111160.86,
@@ -18,11 +18,11 @@
       "roi": 4.966543737732296
     },
     "mtd": {
-      "gross_sales": 439177.5,
-      "net_sales": 393764.72,
-      "spend": 74034.474548,
-      "roas": 5.932067495329636,
-      "roi": 5.3186670453736244
+      "gross_sales": 446376.6,
+      "net_sales": 400681.12,
+      "spend": 74937.663461,
+      "roas": 5.95663888336082,
+      "roi": 5.346858995790915
     },
     "mtd_yoy": {
       "gross_sales": 267116.37,
@@ -33,25 +33,25 @@
     }
   },
   "yoy_deltas": {
-    "last7_roas_pct": 43.654890908809854,
-    "last7_roi_pct": 42.66558642873516,
-    "mtd_roas_pct": 7.775639143300851,
-    "mtd_roi_pct": 6.320501614054241
+    "last7_roas_pct": 43.60643092419086,
+    "last7_roi_pct": 42.61746017225855,
+    "mtd_roas_pct": 8.222059729678847,
+    "mtd_roi_pct": 6.884060544191086
   },
   "plan": {
     "month": "Aug-26",
     "net_income_target": 583966.76,
-    "net_income_actual_mtd": 396890.62999999995,
+    "net_income_actual_mtd": 404025.31,
     "net_income_prorated_target": 320239.83612903225,
-    "net_income_projected": 723741.7370588235,
+    "net_income_projected": 736752.035882353,
     "gross_sales_target": 669993.99,
-    "gross_sales_actual_mtd": 439177.5,
+    "gross_sales_actual_mtd": 446376.6,
     "gross_sales_prorated_target": 367416.05903225805,
-    "gross_sales_projected": 800853.0882352941,
+    "gross_sales_projected": 813980.8588235293,
     "spend_budget": 116793.35,
-    "spend_actual_mtd": 74034.474548,
+    "spend_actual_mtd": 74937.663461,
     "spend_prorated_budget": 64047.96612903226,
-    "spend_projected": 135004.04182282352
+    "spend_projected": 136651.03337005884
   },
   "monthly_history": [
     {
@@ -176,18 +176,18 @@
     {
       "month": "Aug-26",
       "income_target": 583966.76,
-      "income_actual": 396890.62999999995,
-      "income_projected": 723741.7370588235,
-      "income_delta_basis": 723741.74,
-      "income_delta": 139774.98,
+      "income_actual": 404025.31,
+      "income_projected": 736752.035882353,
+      "income_delta_basis": 736752.04,
+      "income_delta": 152785.28,
       "gross_sales_target": 669993.99,
-      "gross_sales_actual": 439177.5,
-      "gross_sales_projected": 800853.0882352941,
-      "gross_sales_delta_basis": 800853.09,
-      "gross_sales_delta": 130859.1,
+      "gross_sales_actual": 446376.6,
+      "gross_sales_projected": 813980.8588235293,
+      "gross_sales_delta_basis": 813980.86,
+      "gross_sales_delta": 143986.87,
       "spend_budget": 116793.35,
-      "spend_actual": 74034.474548,
-      "spend_projected": 135004.04182282352,
+      "spend_actual": 74937.663461,
+      "spend_projected": 136651.03337005884,
       "is_current": true
     },
     {
@@ -261,30 +261,30 @@
   ],
   "totals": {
     "income_target": 6542994.64,
-    "income_actual": 4444457.91,
+    "income_actual": 4451592.59,
     "gross_sales_target": 7506877.76,
-    "gross_sales_actual": 4961221.89,
+    "gross_sales_actual": 4968420.99,
     "spend_budget": 1308598.94,
-    "spend_actual": 785431.57,
-    "roas": 6.316555228356813,
-    "income_delta": -2098536.73,
-    "gross_sales_delta": -2545655.87,
+    "spend_actual": 786334.76,
+    "roas": 6.318455246719603,
+    "income_delta": -2091402.05,
+    "gross_sales_delta": -2538456.77,
     "income_status": "ontrack",
     "spend_status": "atrisk"
   },
   "ytd": {
     "label": "YTD (Jan 1 \u2013 Aug 17)",
     "income_target": 3923417.25,
-    "income_actual": 4444457.91,
-    "income_delta": 521040.66,
+    "income_actual": 4451592.59,
+    "income_delta": 528175.34,
     "income_status": "hit",
     "gross_sales_target": 4501396.58,
-    "gross_sales_actual": 4961221.89,
-    "gross_sales_delta": 459825.31,
+    "gross_sales_actual": 4968420.99,
+    "gross_sales_delta": 467024.41,
     "spend_budget": 784683.46,
-    "spend_actual": 785431.57,
+    "spend_actual": 786334.76,
     "spend_status": "miss",
-    "roas": 6.317
+    "roas": 6.318
   },
   "trend": {
     "months": [
@@ -324,7 +324,7 @@
       2782841.19,
       3335768.19,
       4047567.28,
-      4444457.91,
+      4451592.59,
       null,
       null,
       null,
@@ -338,11 +338,11 @@
       null,
       null,
       null,
-      4765003.01,
-      5313220.92,
-      5945434.44,
-      6751670.47,
-      7447925.06
+      4776875.68,
+      5326530.28,
+      5960400.62,
+      6768749.52,
+      7466828.76
     ],
     "cum_actual_income_ly": [
       159926.2,
@@ -380,7 +380,7 @@
       463673.78,
       565922.92,
       711397.1,
-      785431.57,
+      786334.76,
       null,
       null,
       null,
@@ -394,11 +394,11 @@
       null,
       null,
       null,
-      846401.14,
-      943709.73,
-      1055927.54,
-      1199034.31,
-      1322619.4
+      848048.13,
+      945546.07,
+      1057982.24,
+      1201367.49,
+      1325193.05
     ],
     "cum_actual_spend_ly": [
       37398.71,
@@ -420,69 +420,69 @@
     "annual_income_ly_total": 4379406.32,
     "annual_gross_sales_ly_total": 4873176.08,
     "annual_spend_ly_total": 870802.66,
-    "projected_annual_income": 7451383.19,
-    "projected_annual_gross_sales": 8317767.01,
-    "projected_annual_spend": 1322619.4,
-    "income_attainment_pct": 113.9,
-    "gross_attainment_pct": 110.8,
-    "spend_attainment_pct": 101.1,
-    "recommendation": "Trending +13.9% vs. the annual income target, but spend is pacing 1.1% over budget. On track to hit target, just at a higher cost than planned \u2014 monitor True ROAS to confirm the extra spend is still worth it."
+    "projected_annual_income": 7470910.75,
+    "projected_annual_gross_sales": 8338280.98,
+    "projected_annual_spend": 1325193.05,
+    "income_attainment_pct": 114.2,
+    "gross_attainment_pct": 111.1,
+    "spend_attainment_pct": 101.3,
+    "recommendation": "Trending +14.2% vs. the annual income target, but spend is pacing 1.3% over budget. On track to hit target, just at a higher cost than planned \u2014 monitor True ROAS to confirm the extra spend is still worth it."
   },
   "scaling": {
     "basis": "Trailing 7-day average (excludes today)",
     "current_daily_gross": 32649.32,
     "current_daily_net": 29036.31,
-    "current_daily_spend": 4097.96,
-    "current_roas": 7.967,
-    "current_roi": 7.086,
+    "current_daily_spend": 4099.34,
+    "current_roas": 7.965,
+    "current_roi": 7.083,
     "targets": [
       {
         "label": "$30K/day",
         "daily_revenue_target": 30000,
-        "required_daily_spend": 3765.43,
-        "delta_spend_vs_current": -332.53,
+        "required_daily_spend": 3766.71,
+        "delta_spend_vs_current": -332.64,
         "implied_net_sales": 26680.17,
-        "monthly_spend_equivalent": 112963.03
+        "monthly_spend_equivalent": 113001.15
       },
       {
         "label": "$33K/day",
         "daily_revenue_target": 33000,
-        "required_daily_spend": 4141.98,
-        "delta_spend_vs_current": 44.02,
+        "required_daily_spend": 4143.38,
+        "delta_spend_vs_current": 44.03,
         "implied_net_sales": 29348.19,
-        "monthly_spend_equivalent": 124259.34
+        "monthly_spend_equivalent": 124301.27
       },
       {
         "label": "$35K/day",
         "daily_revenue_target": 35000,
-        "required_daily_spend": 4393.01,
-        "delta_spend_vs_current": 295.04,
+        "required_daily_spend": 4394.49,
+        "delta_spend_vs_current": 295.14,
         "implied_net_sales": 31126.86,
-        "monthly_spend_equivalent": 131790.2
+        "monthly_spend_equivalent": 131834.68
       },
       {
         "label": "$40K/day",
         "daily_revenue_target": 40000,
-        "required_daily_spend": 5020.58,
-        "delta_spend_vs_current": 922.62,
+        "required_daily_spend": 5022.27,
+        "delta_spend_vs_current": 922.93,
         "implied_net_sales": 35573.56,
-        "monthly_spend_equivalent": 150617.38
+        "monthly_spend_equivalent": 150668.2
       },
       {
         "label": "$45K/day",
         "daily_revenue_target": 45000,
-        "required_daily_spend": 5648.15,
-        "delta_spend_vs_current": 1550.19,
+        "required_daily_spend": 5650.06,
+        "delta_spend_vs_current": 1550.71,
         "implied_net_sales": 40020.25,
-        "monthly_spend_equivalent": 169444.55
+        "monthly_spend_equivalent": 169501.73
       },
       {
         "label": "$50K/day",
         "daily_revenue_target": 50000,
-        "required_daily_spend": 6275.72,
-        "delta_spend_vs_current": 2177.76,
+        "required_daily_spend": 6277.84,
+        "delta_spend_vs_current": 2178.5,
         "implied_net_sales": 44466.95,
-        "monthly_spend_equivalent": 188271.72
+        "monthly_spend_equivalent": 188335.25
       }
     ]
   },
@@ -506,7 +506,7 @@
       6.523,
       6.046,
       5.587,
-      5.932,
+      5.957,
       6.5
     ],
     "daily_spend": [
@@ -517,7 +517,7 @@
       3707.75,
       3408.3,
       4692.72,
-      4354.97,
+      4408.1,
       null
     ],
     "actual_count": 7,
