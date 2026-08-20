@@ -109,18 +109,35 @@ def same_window_last_year(start, end):
 LAST7_START, LAST7_END = prior_n_days_excluding_today(TODAY, 7)
 LAST7_LY_START, LAST7_LY_END = same_window_last_year(LAST7_START, LAST7_END)
 
+# MTD excludes "today" too, same convention as Prior 7 Days — today's numbers
+# are still incomplete when the report runs, so counting it would understate
+# the day's true total and throw off every prorated/projected figure derived
+# from it. MTD_LAST_COMPLETE_DAY is the last fully-elapsed day; everything
+# "month to date" (the MTD cards, Financial Plan Attainment, Monthly Hits &
+# Misses' current-month row, YTD, and the trend/ROAS charts) is measured
+# through that day, not through MTD_TODAY itself.
+MTD_LAST_COMPLETE_DAY = MTD_TODAY - timedelta(days=1)
+
 MTD_START = MTD_TODAY.replace(day=1)
-MTD_END = MTD_TODAY
+MTD_END = MTD_LAST_COMPLETE_DAY
 MTD_LY_START, MTD_LY_END = same_window_last_year(MTD_START, MTD_END)
 
 MONTH_LABEL = MTD_TODAY.strftime("%b-%y")
 DAYS_IN_MONTH = calendar.monthrange(MTD_TODAY.year, MTD_TODAY.month)[1]
-DAY_OF_MONTH = MTD_TODAY.day
+# Number of COMPLETE days elapsed in the current month — 0 on the 1st of the
+# month (yesterday was still last month, so nothing this month is final yet).
+DAY_OF_MONTH = (
+    MTD_LAST_COMPLETE_DAY.day
+    if (MTD_LAST_COMPLETE_DAY.year == MTD_TODAY.year and MTD_LAST_COMPLETE_DAY.month == MTD_TODAY.month)
+    else 0
+)
+MTD_HAS_DATA = MTD_END >= MTD_START  # False only on the 1st of the month
 LAST_YEAR = TODAY.year - 1
 
 print(f"Prior 7 days:      {LAST7_START} → {LAST7_END}   (LY: {LAST7_LY_START} → {LAST7_LY_END})")
-print(f"MTD:               {MTD_START} → {MTD_END}       (LY: {MTD_LY_START} → {MTD_LY_END})")
-print(f"Current month:     {MONTH_LABEL}  (day {DAY_OF_MONTH} of {DAYS_IN_MONTH})")
+print(f"MTD:               {MTD_START} → {MTD_END}       (LY: {MTD_LY_START} → {MTD_LY_END})" if MTD_HAS_DATA
+      else "MTD:               no complete days yet this month (today is the 1st)")
+print(f"Current month:     {MONTH_LABEL}  ({DAY_OF_MONTH} complete day{'s' if DAY_OF_MONTH != 1 else ''} of {DAYS_IN_MONTH})")
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Cell 5 equivalent — financial plan targets (hardcoded from the P&L)
@@ -192,8 +209,8 @@ def google_spend(start: date, end: date):
 
 SPEND_LAST7 = google_spend(LAST7_START, LAST7_END)
 SPEND_LAST7_LY = google_spend(LAST7_LY_START, LAST7_LY_END)
-SPEND_MTD = google_spend(MTD_START, MTD_END)
-SPEND_MTD_LY = google_spend(MTD_LY_START, MTD_LY_END)
+SPEND_MTD = google_spend(MTD_START, MTD_END) if MTD_HAS_DATA else 0.0
+SPEND_MTD_LY = google_spend(MTD_LY_START, MTD_LY_END) if MTD_HAS_DATA else 0.0
 
 print(f"Prior 7 days spend:  ${SPEND_LAST7:,.2f}   (LY: ${SPEND_LAST7_LY:,.2f})")
 print(f"MTD spend:           ${SPEND_MTD:,.2f}   (LY: ${SPEND_MTD_LY:,.2f})")
@@ -201,8 +218,12 @@ print(f"MTD spend:           ${SPEND_MTD:,.2f}   (LY: ${SPEND_MTD_LY:,.2f})")
 MONTHLY_SPEND_ACTUAL = {}
 for m in range(1, MTD_TODAY.month + 1):
     m_start = date(MTD_TODAY.year, m, 1)
-    m_end = MTD_TODAY if m == MTD_TODAY.month else date(MTD_TODAY.year, m, calendar.monthrange(MTD_TODAY.year, m)[1])
     label = m_start.strftime("%b-%y")
+    if m == MTD_TODAY.month and not MTD_HAS_DATA:
+        MONTHLY_SPEND_ACTUAL[label] = 0.0  # today is the 1st — no complete days yet this month
+        print(f"   {label}: $0.00 spend (no complete days yet this month)")
+        continue
+    m_end = MTD_LAST_COMPLETE_DAY if m == MTD_TODAY.month else date(MTD_TODAY.year, m, calendar.monthrange(MTD_TODAY.year, m)[1])
     MONTHLY_SPEND_ACTUAL[label] = google_spend(m_start, m_end)
     print(f"   {label}: ${MONTHLY_SPEND_ACTUAL[label]:,.2f} spend")
 
@@ -281,8 +302,8 @@ def shopify_sales(start: date, end: date) -> dict:
 
 SALES_LAST7 = shopify_sales(LAST7_START, LAST7_END)
 SALES_LAST7_LY = shopify_sales(LAST7_LY_START, LAST7_LY_END)
-SALES_MTD = shopify_sales(MTD_START, MTD_END)
-SALES_MTD_LY = shopify_sales(MTD_LY_START, MTD_LY_END)
+SALES_MTD = shopify_sales(MTD_START, MTD_END) if MTD_HAS_DATA else {"gross_sales": 0.0, "net_sales": 0.0}
+SALES_MTD_LY = shopify_sales(MTD_LY_START, MTD_LY_END) if MTD_HAS_DATA else {"gross_sales": 0.0, "net_sales": 0.0}
 
 print(f"Prior 7 days:  gross ${SALES_LAST7['gross_sales']:,.2f}  net ${SALES_LAST7['net_sales']:,.2f}")
 print(f"MTD:           gross ${SALES_MTD['gross_sales']:,.2f}  net ${SALES_MTD['net_sales']:,.2f}")
@@ -295,8 +316,13 @@ MONTHLY_INCOME_ACTUAL = {}
 MONTHLY_GROSS_SALES_ACTUAL = {}
 for m in range(1, MTD_TODAY.month + 1):
     m_start = date(MTD_TODAY.year, m, 1)
-    m_end = MTD_TODAY if m == MTD_TODAY.month else date(MTD_TODAY.year, m, calendar.monthrange(MTD_TODAY.year, m)[1])
     label = m_start.strftime("%b-%y")
+    if m == MTD_TODAY.month and not MTD_HAS_DATA:
+        MONTHLY_INCOME_ACTUAL[label] = 0.0  # today is the 1st — no complete days yet this month
+        MONTHLY_GROSS_SALES_ACTUAL[label] = 0.0
+        print(f"   {label}: $0.00 net income | $0.00 gross sales (no complete days yet this month)")
+        continue
+    m_end = MTD_LAST_COMPLETE_DAY if m == MTD_TODAY.month else date(MTD_TODAY.year, m, calendar.monthrange(MTD_TODAY.year, m)[1])
     query = f"FROM sales SHOW net_sales, shipping_charges, gross_sales SINCE {m_start.isoformat()} UNTIL {m_end.isoformat()}"
     df = _run_shopifyql_df(query)
     row = df.iloc[0] if len(df) else None
@@ -346,20 +372,23 @@ yoy_deltas = {
     "mtd_roi_pct": pct_change(period_mtd["roi"], period_mtd_ly["roi"]),
 }
 
+# DAY_OF_MONTH is 0 on the 1st of the month (no complete days yet) — projected
+# figures have nothing to extrapolate from yet in that case, so leave them
+# None rather than dividing by zero. Prorated targets are still fine at 0.
 plan = {
     "month": MONTH_LABEL,
     "net_income_target": INCOME_TARGET[MONTH_LABEL],
     "net_income_actual_mtd": MONTHLY_INCOME_ACTUAL[MONTH_LABEL],
     "net_income_prorated_target": INCOME_TARGET[MONTH_LABEL] * DAY_OF_MONTH / DAYS_IN_MONTH,
-    "net_income_projected": MONTHLY_INCOME_ACTUAL[MONTH_LABEL] / DAY_OF_MONTH * DAYS_IN_MONTH,
+    "net_income_projected": (MONTHLY_INCOME_ACTUAL[MONTH_LABEL] / DAY_OF_MONTH * DAYS_IN_MONTH) if DAY_OF_MONTH else None,
     "gross_sales_target": GROSS_SALES_TARGET[MONTH_LABEL],
     "gross_sales_actual_mtd": MONTHLY_GROSS_SALES_ACTUAL[MONTH_LABEL],
     "gross_sales_prorated_target": GROSS_SALES_TARGET[MONTH_LABEL] * DAY_OF_MONTH / DAYS_IN_MONTH,
-    "gross_sales_projected": MONTHLY_GROSS_SALES_ACTUAL[MONTH_LABEL] / DAY_OF_MONTH * DAYS_IN_MONTH,
+    "gross_sales_projected": (MONTHLY_GROSS_SALES_ACTUAL[MONTH_LABEL] / DAY_OF_MONTH * DAYS_IN_MONTH) if DAY_OF_MONTH else None,
     "spend_budget": GOOGLE_SPEND_BUDGET[MONTH_LABEL],
     "spend_actual_mtd": MONTHLY_SPEND_ACTUAL[MONTH_LABEL],
     "spend_prorated_budget": GOOGLE_SPEND_BUDGET[MONTH_LABEL] * DAY_OF_MONTH / DAYS_IN_MONTH,
-    "spend_projected": MONTHLY_SPEND_ACTUAL[MONTH_LABEL] / DAY_OF_MONTH * DAYS_IN_MONTH,
+    "spend_projected": (MONTHLY_SPEND_ACTUAL[MONTH_LABEL] / DAY_OF_MONTH * DAYS_IN_MONTH) if DAY_OF_MONTH else None,
 }
 
 monthly_history = []
@@ -372,11 +401,11 @@ for label in INCOME_TARGET:
     income_projected = None
     spend_projected = None
     gross_projected = None
-    if is_current and income_actual is not None:
+    if is_current and income_actual is not None and DAY_OF_MONTH:
         income_projected = income_actual / DAY_OF_MONTH * DAYS_IN_MONTH
-    if is_current and spend_actual is not None:
+    if is_current and spend_actual is not None and DAY_OF_MONTH:
         spend_projected = spend_actual / DAY_OF_MONTH * DAYS_IN_MONTH
-    if is_current and gross_actual is not None:
+    if is_current and gross_actual is not None and DAY_OF_MONTH:
         gross_projected = gross_actual / DAY_OF_MONTH * DAYS_IN_MONTH
 
     income_basis_for_delta = income_projected if is_current else income_actual
@@ -437,7 +466,7 @@ ytd_spend_budget = completed_spend_budget + plan["spend_prorated_budget"]
 ytd_roas = (ytd_gross_actual / ytd_spend_actual) if ytd_spend_actual else None
 
 ytd = {
-    "label": f"YTD (Jan 1 – {MTD_TODAY.strftime('%b %d')})",
+    "label": f"YTD (Jan 1 – {MTD_LAST_COMPLETE_DAY.strftime('%b %d')})",
     "income_target": round(ytd_income_target, 2),
     "income_actual": round(ytd_income_actual, 2),
     "income_delta": round(ytd_income_actual - ytd_income_target, 2),
