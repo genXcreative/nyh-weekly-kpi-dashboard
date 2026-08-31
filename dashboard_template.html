@@ -599,7 +599,7 @@ const spendDelta = t.projected_annual_spend != null
   ? (t.projected_annual_spend - t.annual_spend_budget) : null;
 
 document.getElementById('trendSummaryCards').innerHTML = [
-  cardHTML('Projected Annual Net Income', fmtMoney(t.projected_annual_income),
+  cardHTML('Projected Annual Net Sales', fmtMoney(t.projected_annual_income),
     `vs. target ${fmtMoney(t.annual_income_target)}`,
     t.income_attainment_pct != null ? t.income_attainment_pct - 100 : null,
     (t.income_attainment_pct || 0) >= 100 ? 'good' : (t.income_attainment_pct || 0) >= 90 ? 'warn' : 'bad'),
@@ -620,7 +620,7 @@ function yoyDelta(projected, lyTotal) {
 }
 
 dataTable('tableTrendYoy', ['Prior Year Total', 'Projected This Year', 'Δ vs. Last Year', '% vs. Last Year'], [
-  { label: 'Net Income', values: [
+  { label: 'Net Sales', values: [
       fmtMoney(t.annual_income_ly_total), fmtMoney(t.projected_annual_income),
       deltaCell(yoyDelta(t.projected_annual_income, t.annual_income_ly_total)),
       fmtPct(pctDelta(t.projected_annual_income, t.annual_income_ly_total)),
