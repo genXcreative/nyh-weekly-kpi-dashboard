@@ -691,13 +691,26 @@ ROAS_TREND_MANUAL_PROJECTIONS = {
 }
 
 # Estimated daily ad spend pace for those same projected months (the red
-# "Daily Ad Spend Pace" line). Fill in a number here for each month above to
-# have it plotted as a dotted (estimated) continuation of the historic solid
-# line — left blank/unset, that month just shows no spend point yet.
+# "Daily Ad Spend Pace" line). A month here overrides the auto-computed
+# estimate below with a hand-entered number. Leave a month out to have it
+# auto-computed instead: that month's Gross Sales target ÷ the target ROAS ÷
+# the number of days in the month — the daily spend that would be needed to
+# hit the Gross Sales target at that ROAS, evenly paced across the month.
 ROAS_TREND_MANUAL_SPEND_PROJECTIONS = {
     # "Aug-26": 0,
     # "Sep-26": 0,
 }
+ROAS_TREND_SPEND_ESTIMATE_TARGET_ROAS = 6.0
+
+
+def _estimated_daily_spend_pace(month_label, target_roas=ROAS_TREND_SPEND_ESTIMATE_TARGET_ROAS):
+    _target = GROSS_SALES_TARGET.get(month_label)
+    if _target is None or not target_roas:
+        return None
+    _dt = datetime.strptime(month_label, "%b-%y")
+    _days = calendar.monthrange(_dt.year, _dt.month)[1]
+    return round(_target / target_roas / _days, 2) if _days else None
+
 
 roas_trend_months, roas_trend_roas, roas_trend_daily_spend = [], [], []
 roas_trend_closed_count = 0
@@ -718,13 +731,22 @@ for m in monthly_history:
         roas_trend_closed_count += 1
 
 roas_trend_actual_count = roas_trend_closed_count
+# Real measured spend data (closed months + the in-progress current month —
+# a partial-month spend total is still a real dollar figure, not a guess)
+# is what draws the "Daily Ad Spend Pace" line solid; it's one month ahead
+# of roas_trend_actual_count, which excludes the current month because that
+# month's ROAS (spend ÷ still-accruing gross sales) isn't finalized yet.
+roas_trend_spend_actual_count = len(roas_trend_months)
 
 for _proj_month, _proj_roas in ROAS_TREND_MANUAL_PROJECTIONS.items():
     if _proj_month in roas_trend_months:
         continue  # real data already landed for this month — don't double up
     roas_trend_months.append(_proj_month)
     roas_trend_roas.append(_proj_roas)
-    roas_trend_daily_spend.append(ROAS_TREND_MANUAL_SPEND_PROJECTIONS.get(_proj_month))
+    _manual_spend = ROAS_TREND_MANUAL_SPEND_PROJECTIONS.get(_proj_month)
+    roas_trend_daily_spend.append(
+        _manual_spend if _manual_spend is not None else _estimated_daily_spend_pace(_proj_month)
+    )
 
 # Band covers only the projected months (from the actual/projected boundary
 # to the end of the chart) — None if every plotted month already has real
@@ -738,6 +760,7 @@ roas_trend = {
     "roas": roas_trend_roas,
     "daily_spend": roas_trend_daily_spend,
     "actual_count": roas_trend_actual_count,
+    "spend_actual_count": roas_trend_spend_actual_count,
     "annotation_start_month": roas_trend_band_start,
     "stabilization_month": ROAS_SCALEUP_STABILIZATION_MONTH,
     "annotation_label": None,

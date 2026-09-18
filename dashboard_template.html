@@ -538,13 +538,15 @@ if (rt && rt.months && rt.months.length) {
           backgroundColor: COLOR_SPEND,
           yAxisID: 'y1',
           tension: 0.3,
-          pointRadius: (ctx) => ctx.dataIndex >= rt.actual_count ? 3 : 4,
+          pointRadius: (ctx) => ctx.dataIndex >= rt.spend_actual_count ? 3 : 4,
           pointHoverRadius: 5,
-          pointStyle: (ctx) => ctx.dataIndex >= rt.actual_count ? 'rectRot' : 'circle',
-          // Solid for historic (measured) months, dotted for estimated months —
-          // same actual/projected boundary as the True ROAS line above.
+          pointStyle: (ctx) => ctx.dataIndex >= rt.spend_actual_count ? 'rectRot' : 'circle',
+          // Solid through the last month with real measured spend (which
+          // includes the in-progress current month — a partial-month spend
+          // total is still real, not a guess), dotted from there through the
+          // rest of the year, where the line is a target-derived estimate.
           segment: {
-            borderDash: (ctx) => (ctx.p0DataIndex >= rt.actual_count - 1) ? [6, 4] : undefined,
+            borderDash: (ctx) => (ctx.p0DataIndex >= rt.spend_actual_count - 1) ? [6, 4] : undefined,
           },
         },
       ],
