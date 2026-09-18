@@ -1,6 +1,6 @@
 {
   "store": "New York Hardware, Inc",
-  "generated_at": "2026-09-18 16:12",
+  "generated_at": "2026-09-18 16:29",
   "last7_range": "Sep 11 \u2013 Sep 17, 2026",
   "periods": {
     "last7": {
@@ -496,7 +496,10 @@
       "Jun-26",
       "Jul-26",
       "Aug-26",
-      "Sep-26"
+      "Sep-26",
+      "Oct-26",
+      "Nov-26",
+      "Dec-26"
     ],
     "roas": [
       6.472,
@@ -507,7 +510,10 @@
       6.046,
       5.587,
       6.196,
-      5.65
+      5.65,
+      6.0,
+      6.0,
+      6.0
     ],
     "daily_spend": [
       2863.35,
@@ -518,11 +524,14 @@
       3408.3,
       4692.72,
       4173.23,
-      3459.97
+      3459.97,
+      null,
+      null,
+      null
     ],
     "actual_count": 8,
     "annotation_start_month": "Sep-26",
     "stabilization_month": null,
-    "annotation_label": "Planned scale-up period \u2014 ROAS dip reflects deliberate pacing toward $30K/day daily revenue target, staged to protect CS capacity."
+    "annotation_label": null
   }
 }
