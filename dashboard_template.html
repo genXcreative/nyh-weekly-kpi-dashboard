@@ -584,10 +584,11 @@ if (rt && rt.months && rt.months.length) {
     plugins: [scaleUpBandPlugin(rt.annotation_start_month, rt.stabilization_month, rt.annotation_label)],
   });
   const hasProjectedMonths = rt.actual_count != null && rt.actual_count < rt.months.length;
-  document.getElementById('roasTrendNote').textContent =
-    'Shaded band = ' + (rt.annotation_label || '') +
-    (hasProjectedMonths ? ` Dotted portions of both lines (from ${rt.months[rt.actual_count]} onward) reflect the in-progress current month and forward-looking estimates, not finalized historic actuals.` : '') +
-    (rt.stabilization_month ? ` Vertical dotted line marks the projected stabilization month (${rt.stabilization_month}).` : '');
+  document.getElementById('roasTrendNote').textContent = [
+    rt.annotation_label ? 'Shaded band = ' + rt.annotation_label : '',
+    hasProjectedMonths ? `Dotted portions of both lines (from ${rt.months[rt.actual_count]} onward) reflect the in-progress current month and forward-looking estimates, not finalized historic actuals.` : '',
+    rt.stabilization_month ? `Vertical dotted line marks the projected stabilization month (${rt.stabilization_month}).` : '',
+  ].filter(Boolean).join(' ');
 }
 
 // ── Full-year trend & projection ──────────────────────────────────────────────

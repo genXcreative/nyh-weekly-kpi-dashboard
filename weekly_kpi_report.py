@@ -685,6 +685,9 @@ ROAS_SCALEUP_STABILIZATION_MONTH = None
 ROAS_TREND_MANUAL_PROJECTIONS = {
     "Aug-26": 6.1,
     "Sep-26": 6.5,
+    "Oct-26": 6.0,
+    "Nov-26": 6.0,
+    "Dec-26": 6.0,
 }
 
 # Estimated daily ad spend pace for those same projected months (the red
@@ -737,8 +740,7 @@ roas_trend = {
     "actual_count": roas_trend_actual_count,
     "annotation_start_month": roas_trend_band_start,
     "stabilization_month": ROAS_SCALEUP_STABILIZATION_MONTH,
-    "annotation_label": ("Planned scale-up period — ROAS dip reflects deliberate pacing toward "
-                         "$30K/day daily revenue target, staged to protect CS capacity."),
+    "annotation_label": None,
 }
 
 report_data = {
