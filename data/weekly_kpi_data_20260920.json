@@ -1,6 +1,6 @@
 {
   "store": "New York Hardware, Inc",
-  "generated_at": "2026-09-21 03:27",
+  "generated_at": "2026-09-21 03:39",
   "last7_range": "Sep 13 \u2013 Sep 19, 2026",
   "periods": {
     "last7": {
@@ -531,7 +531,7 @@
     ],
     "actual_count": 8,
     "spend_actual_count": 9,
-    "annotation_start_month": "Sep-26",
+    "annotation_start_month": "Oct-26",
     "stabilization_month": null,
     "annotation_label": null
   }
