@@ -522,13 +522,14 @@ if (rt && rt.months && rt.months.length) {
           backgroundColor: COLOR_GROSS,
           yAxisID: 'y',
           tension: 0.3,
-          pointRadius: (ctx) => ctx.dataIndex >= rt.actual_count ? 3 : 4,
+          pointRadius: (ctx) => ctx.dataIndex >= rt.spend_actual_count ? 3 : 4,
           pointHoverRadius: 6,
-          pointStyle: (ctx) => ctx.dataIndex >= rt.actual_count ? 'rectRot' : 'circle',
-          // Dotted from the last actual month onward, so the projected
-          // (manually entered) months read as forward-looking, not measured.
+          pointStyle: (ctx) => ctx.dataIndex >= rt.spend_actual_count ? 'rectRot' : 'circle',
+          // Solid through the last month with real data (same boundary as the
+          // spend line below — includes the in-progress current month), dotted
+          // for the purely target-derived months after that.
           segment: {
-            borderDash: (ctx) => (ctx.p0DataIndex >= rt.actual_count - 1) ? [6, 4] : undefined,
+            borderDash: (ctx) => (ctx.p0DataIndex >= rt.spend_actual_count - 1) ? [6, 4] : undefined,
           },
         },
         {
@@ -585,10 +586,10 @@ if (rt && rt.months && rt.months.length) {
     },
     plugins: [scaleUpBandPlugin(rt.annotation_start_month, rt.stabilization_month, rt.annotation_label)],
   });
-  const hasProjectedMonths = rt.actual_count != null && rt.actual_count < rt.months.length;
+  const hasProjectedMonths = rt.spend_actual_count != null && rt.spend_actual_count < rt.months.length;
   document.getElementById('roasTrendNote').textContent = [
     rt.annotation_label ? 'Shaded band = ' + rt.annotation_label : '',
-    hasProjectedMonths ? `Dotted portions of both lines (from ${rt.months[rt.actual_count]} onward) reflect the in-progress current month and forward-looking estimates, not finalized historic actuals.` : '',
+    hasProjectedMonths ? `Dotted portions of both lines (from ${rt.months[rt.spend_actual_count]} onward) reflect target-derived estimates, not measured actuals.` : '',
     rt.stabilization_month ? `Vertical dotted line marks the projected stabilization month (${rt.stabilization_month}).` : '',
   ].filter(Boolean).join(' ');
 }

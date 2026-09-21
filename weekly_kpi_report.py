@@ -748,11 +748,13 @@ for _proj_month, _proj_roas in ROAS_TREND_MANUAL_PROJECTIONS.items():
         _manual_spend if _manual_spend is not None else _estimated_daily_spend_pace(_proj_month)
     )
 
-# Band covers only the projected months (from the actual/projected boundary
-# to the end of the chart) — None if every plotted month already has real
-# data, so the band just disappears once nothing's left to project.
+# Band covers only the purely target-derived months (from the real/estimated
+# boundary — the same one both lines use for solid-vs-dashed — to the end of
+# the chart). None if every plotted month already has real data, so the band
+# just disappears once nothing's left to project.
 roas_trend_band_start = (
-    roas_trend_months[roas_trend_actual_count] if roas_trend_actual_count < len(roas_trend_months) else None
+    roas_trend_months[roas_trend_spend_actual_count]
+    if roas_trend_spend_actual_count < len(roas_trend_months) else None
 )
 
 roas_trend = {
@@ -1050,16 +1052,9 @@ else:
         from email.mime.multipart import MIMEMultipart
         from email.mime.text import MIMEText
 
-        p7 = period_last7
         subject = f"NYH Weekly KPI Report — {plan['month']} (as of {TODAY.isoformat()})"
-        roas_line = f"True ROAS (7d): {p7['roas']:.2f}x   |   ROI (7d): {p7['roi']:.2f}x" if p7["roas"] is not None else "True ROAS/ROI (7d): n/a"
         body_lines = [
             f"Weekly ecommerce KPI report — {report_data['last7_range']} vs. same week last year.",
-            "",
-            roas_line,
-            f"Net Income MTD: ${plan['net_income_actual_mtd']:,.0f} vs. target ${plan['net_income_target']:,.0f}",
-            f"Gross Sales MTD: ${plan['gross_sales_actual_mtd']:,.0f} vs. target ${plan['gross_sales_target']:,.0f}",
-            f"Ad Spend MTD: ${plan['spend_actual_mtd']:,.0f} vs. budget ${plan['spend_budget']:,.0f}",
             "",
             "Full dashboard attached as PDF.",
         ]
