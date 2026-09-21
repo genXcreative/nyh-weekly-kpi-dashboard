@@ -1,14 +1,14 @@
 {
   "store": "New York Hardware, Inc",
-  "generated_at": "2026-09-21 13:44",
+  "generated_at": "2026-09-21 18:12",
   "last7_range": "Sep 14 \u2013 Sep 20, 2026",
   "periods": {
     "last7": {
       "gross_sales": 149248.66,
       "net_sales": 128532.97,
-      "spend": 21541.650639,
-      "roas": 6.928376218756112,
-      "roi": 5.966718714084889
+      "spend": 21542.810639,
+      "roas": 6.928003151539005,
+      "roi": 5.966397428537505
     },
     "last7_yoy": {
       "gross_sales": 82312.32,
@@ -20,9 +20,9 @@
     "mtd": {
       "gross_sales": 384598.09,
       "net_sales": 330252.42,
-      "spend": 68348.69596,
-      "roas": 5.626999675678963,
-      "roi": 4.831875946737521
+      "spend": 68349.85596,
+      "roas": 5.626904177019425,
+      "roi": 4.83179394252523
     },
     "mtd_yoy": {
       "gross_sales": 284271.58,
@@ -33,10 +33,10 @@
     }
   },
   "yoy_deltas": {
-    "last7_roas_pct": 57.1049288282533,
-    "last7_roi_pct": 51.068371102853305,
-    "mtd_roas_pct": 12.518577111907996,
-    "mtd_roi_pct": 9.394309752239108
+    "last7_roas_pct": 57.09646931382435,
+    "last7_roi_pct": 51.06023663454199,
+    "mtd_roas_pct": 12.516667502185818,
+    "mtd_roi_pct": 9.392453166039603
   },
   "plan": {
     "month": "Sep-26",
@@ -49,9 +49,9 @@
     "gross_sales_prorated_target": 368200.5266666667,
     "gross_sales_projected": 576897.135,
     "spend_budget": 96277.07,
-    "spend_actual_mtd": 68348.69596,
+    "spend_actual_mtd": 68349.85596,
     "spend_prorated_budget": 64184.71333333334,
-    "spend_projected": 102523.04393999999
+    "spend_projected": 102524.78394000001
   },
   "monthly_history": [
     {
@@ -203,8 +203,8 @@
       "gross_sales_delta_basis": 576897.14,
       "gross_sales_delta": 24596.34,
       "spend_budget": 96277.07,
-      "spend_actual": 68348.69596,
-      "spend_projected": 102523.04393999999,
+      "spend_actual": 68349.85596,
+      "spend_projected": 102524.78394000001,
       "is_current": true
     },
     {
@@ -265,8 +265,8 @@
     "gross_sales_target": 7506877.76,
     "gross_sales_actual": 5708161.09,
     "spend_budget": 1308598.94,
-    "spend_actual": 909115.85,
-    "roas": 6.278804939986472,
+    "spend_actual": 909117.01,
+    "roas": 6.278796928461387,
     "income_delta": -1454340.91,
     "gross_sales_delta": -1798716.67,
     "income_status": "ontrack",
@@ -282,7 +282,7 @@
     "gross_sales_actual": 5708161.09,
     "gross_sales_delta": 535986.05,
     "spend_budget": 901613.55,
-    "spend_actual": 909115.85,
+    "spend_actual": 909117.01,
     "spend_status": "miss",
     "roas": 6.279
   },
@@ -381,7 +381,7 @@
       565922.92,
       711397.1,
       840767.16,
-      909115.85,
+      909117.01,
       null,
       null,
       null
@@ -395,10 +395,10 @@
       null,
       null,
       null,
-      943290.2,
-      1055458.12,
-      1198501.28,
-      1322031.43
+      943291.94,
+      1055460.07,
+      1198503.49,
+      1322033.87
     ],
     "cum_actual_spend_ly": [
       37398.71,
@@ -422,7 +422,7 @@
     "annual_spend_ly_total": 870802.66,
     "projected_annual_income": 7372062.56,
     "projected_annual_gross_sales": 8269558.69,
-    "projected_annual_spend": 1322031.43,
+    "projected_annual_spend": 1322033.87,
     "income_attainment_pct": 112.7,
     "gross_attainment_pct": 110.2,
     "spend_attainment_pct": 101.0,
@@ -432,57 +432,57 @@
     "basis": "Trailing 7-day average (excludes today)",
     "current_daily_gross": 21321.24,
     "current_daily_net": 18361.85,
-    "current_daily_spend": 3077.38,
+    "current_daily_spend": 3077.54,
     "current_roas": 6.928,
-    "current_roi": 5.967,
+    "current_roi": 5.966,
     "targets": [
       {
         "label": "$30K/day",
         "daily_revenue_target": 30000,
-        "required_daily_spend": 4330.02,
-        "delta_spend_vs_current": 1252.64,
+        "required_daily_spend": 4330.25,
+        "delta_spend_vs_current": 1252.71,
         "implied_net_sales": 25836.0,
-        "monthly_spend_equivalent": 129900.57
+        "monthly_spend_equivalent": 129907.56
       },
       {
         "label": "$33K/day",
         "daily_revenue_target": 33000,
-        "required_daily_spend": 4763.02,
-        "delta_spend_vs_current": 1685.64,
+        "required_daily_spend": 4763.28,
+        "delta_spend_vs_current": 1685.73,
         "implied_net_sales": 28419.61,
-        "monthly_spend_equivalent": 142890.62
+        "monthly_spend_equivalent": 142898.32
       },
       {
         "label": "$35K/day",
         "daily_revenue_target": 35000,
-        "required_daily_spend": 5051.69,
-        "delta_spend_vs_current": 1974.31,
+        "required_daily_spend": 5051.96,
+        "delta_spend_vs_current": 1974.42,
         "implied_net_sales": 30142.01,
-        "monthly_spend_equivalent": 151550.66
+        "monthly_spend_equivalent": 151558.82
       },
       {
         "label": "$40K/day",
         "daily_revenue_target": 40000,
-        "required_daily_spend": 5773.36,
-        "delta_spend_vs_current": 2695.98,
+        "required_daily_spend": 5773.67,
+        "delta_spend_vs_current": 2696.13,
         "implied_net_sales": 34448.01,
-        "monthly_spend_equivalent": 173200.76
+        "monthly_spend_equivalent": 173210.08
       },
       {
         "label": "$45K/day",
         "daily_revenue_target": 45000,
-        "required_daily_spend": 6495.03,
-        "delta_spend_vs_current": 3417.65,
+        "required_daily_spend": 6495.38,
+        "delta_spend_vs_current": 3417.83,
         "implied_net_sales": 38754.01,
-        "monthly_spend_equivalent": 194850.85
+        "monthly_spend_equivalent": 194861.34
       },
       {
         "label": "$50K/day",
         "daily_revenue_target": 50000,
-        "required_daily_spend": 7216.7,
-        "delta_spend_vs_current": 4139.32,
+        "required_daily_spend": 7217.09,
+        "delta_spend_vs_current": 4139.54,
         "implied_net_sales": 43060.01,
-        "monthly_spend_equivalent": 216500.95
+        "monthly_spend_equivalent": 216512.6
       }
     ]
   },
@@ -524,7 +524,7 @@
       3408.3,
       4692.72,
       4173.23,
-      3417.43,
+      3417.49,
       3424.31,
       4512.45,
       3771.18
